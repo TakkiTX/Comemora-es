@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Aniversário do Tio – Warzone</title>
+  <style>
+    body, html {
+      margin: 0;
+      padding: 0;
+      height: 100%;
+      font-family: 'Impact', sans-serif;
+      color: white;
+      overflow-x: hidden;
+      scroll-behavior: smooth;
+    }
+
+    .parallax {
+      height: 100vh;
+      background-attachment: fixed;
+      background-position: center;
+      background-repeat: no-repeat;
+      background-size: cover;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      text-align: center;
+      flex-direction: column;
+    }
+
+    .parallax h1, .parallax h2, .parallax p {
+      background: rgba(0,0,0,0.6);
+      padding: 20px;
+      border: 2px solid #FFD700;
+      text-shadow: 2px 2px 8px black;
+      max-width: 80%;
+    }
+
+    #missao1 { 
+      background-image: url('https://i.ytimg.com/vi/XSKre3y6UEI/maxresdefault.jpg');  
+    }
+    #missao2 { 
+      background-image: url('https://images6.alphacoders.com/328/thumb-1920-328418.jpg');  
+    }
+    #missao3 { 
+      background-image: url('https://bnetcmsus-a.akamaihd.net/cms/gallery/U6CX2P9LZTZ91650912941129.jpg');  
+    }
+    #bauFinal {
+      background-image: url('https://i.ytimg.com/vi/zAiuARZh6_8/hqdefault.jpg'); 
+    }
+
+    .bau-container {
+      text-align: center;
+    }
+
+    .bau {
+      width: 220px;
+      height: 220px;
+      background: url('https://vignette.wikia.nocookie.net/escape-from-tarkov/images/d/da/T_H_I_C_C_Weapon_case_front.png/revision/latest?cb=20191125201417') no-repeat center/contain;
+      cursor: pointer;
+      transition: transform 0.3s;
+      margin: auto;
+    }
+    .bau:hover {
+      transform: scale(1.1);
+    }
+
+    .carta {
+      max-width: 600px;
+      margin: 20px auto;
+      padding: 20px;
+      background: rgba(0,0,0,0.85);
+      border: 2px solid #FFD700;
+      border-radius: 10px;
+      display: none;
+      animation: aparecer 0.8s ease-in-out forwards;
+    }
+
+    @keyframes aparecer {
+      from {opacity: 0; transform: scale(0.8);}
+      to {opacity: 1; transform: scale(1);}
+    }
+  </style>
+</head>
+<body>
+
+  <div class="parallax" id="missao1">
+    <h1>Missão 1: Ligue seu PS5  🪂</h1>
+    <p>Atualize seu jogo!</p>
+    <p>Coloque seu controle para carregar!</p>
+    <p>Separe seu fone!</p>
+  </div>
+
+  <div class="parallax" id="missao2">
+    <h1>Missão 2: Organize Tempo para jogar 👥</h1>
+    <p>Prepare uma Cerveja.</p>
+    <p>Um salgadinho.</p>
+    <p>Seu fone.</p>
+  </div>
+
+  <div class="parallax" id="missao3">
+    <h1>Missão 3: Chame seu esquadrão ⚔️</h1>
+    <p>Sobreviva até ser o ultimo de pé soldado...</p>
+  </div>
+
+  <div class="parallax" id="bauFinal">
+    <div class="bau-container">
+      <h2>Missão Final: Abra o Baú 🎁</h2>
+      <div class="bau" id="bau"></div>
+      <div class="carta" id="carta">
+        <h2>🎉 Parabéns, Rique!!! 🎉</h2>
+        <p>Você completou todas as missões ou não, mas já conquistou a vitória suprema!</p>
+        <p>Que sua vida seja cheia de alegria, saúde e muitas vitórias, dentro e fora do Warzone! 🏆</p>
+        <p>Saiba que seu esquadrão dentro e fora do jogo jamais te abandonara, se cair te levantamos 💖</p>
+        <p>Se precisar de loadout personalizado te daremos suporte para enfrentar outros jogadores 💖</p>
+      </div>
+    </div>
+  </div>
+
+  <audio id="bauSound">
+    <source src="https://cdn.pixabay.com/download/audio/2021/09/14/audio_0e8c2db5a5.mp3?filename=chest-open-90690.mp3" type="audio/mpeg">
+  </audio>
+
+  <script>
+    const bau = document.getElementById("bau");
+    const carta = document.getElementById("carta");
+    const bauSound = document.getElementById("bauSound");
+
+    bau.addEventListener("click", () => {
+      bauSound.currentTime = 0;
+      bauSound.play();
+      carta.style.display = "block";
+      bau.style.display = "none";
+    });
+  </script>
+
+</body>
+</html>
