@@ -1,0 +1,595 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Universo de Anny 💖</title>
+  <style>
+    * {
+      margin:0; padding:0; box-sizing:border-box;
+      font-family:"Segoe UI",sans-serif;
+    }
+
+    body {
+      min-height:100vh;
+      overflow-y:auto; /* scroll vertical */
+      overflow-x:hidden;
+      display:flex;
+      justify-content:center;
+      align-items:flex-start;
+      background:radial-gradient(circle at top,#0f2027,#203a43,#2c5364);
+      color:#fff;
+      scroll-behavior:smooth;
+    }
+
+    /* ===== Scrollbar estilizada ===== */
+    ::-webkit-scrollbar {width:10px;}
+    ::-webkit-scrollbar-track {background:rgba(255,255,255,0.05);}
+    ::-webkit-scrollbar-thumb {
+      background:linear-gradient(180deg,#ff416c,#ff4b2b);
+      border-radius:8px;
+    }
+
+    .background {
+      position:fixed;
+      width:100%; height:100%;
+      top:0; left:0;
+      overflow:hidden;
+      z-index:-1;
+    }
+
+    .star {
+      position:absolute;
+      width:2px; height:2px;
+      background:white;
+      border-radius:50%;
+      animation:twinkle 3s infinite ease-in-out;
+    }
+
+    .heart {
+      position:absolute;
+      width:16px; height:16px;
+      background:#ff4d6d;
+      transform:rotate(-45deg);
+      animation:heartbeat 2s infinite ease-in-out;
+    }
+    .heart::before,.heart::after {
+      content:"";
+      position:absolute;
+      width:16px; height:16px;
+      border-radius:50%;
+      background:#ff4d6d;
+    }
+    .heart::before {top:-8px; left:0;}
+    .heart::after {left:8px; top:0;}
+
+    @keyframes twinkle {
+      0%,100%{opacity:0.2;transform:scale(0.8);}
+      50%{opacity:1;transform:scale(1.2);}
+    }
+    @keyframes heartbeat {
+      0%,100%{transform:scale(0.9) rotate(-45deg);}
+      50%{transform:scale(1.3) rotate(-45deg);}
+    }
+
+    .container {
+      width:92%;
+      max-width:900px;
+      margin-top:60px;
+      margin-bottom:60px;
+      padding:20px;
+      border-radius:25px;
+      background:rgba(255,255,255,0.1);
+      backdrop-filter:blur(15px);
+      box-shadow:0 8px 40px rgba(0,0,0,0.6);
+      text-align:center;
+      animation:fadeIn 1s ease;
+    }
+
+    .tabs {
+      display:flex; justify-content:center; gap:10px;
+      margin-bottom:20px; flex-wrap:wrap;
+    }
+
+    .tab-button {
+      padding:10px 16px;
+      background:rgba(255,255,255,0.08);
+      border-radius:15px;
+      cursor:pointer;
+      transition:all 0.3s ease;
+      font-weight:bold;
+      box-shadow:0 5px 20px rgba(0,0,0,0.3);
+      font-size:0.95rem;
+    }
+    .tab-button:hover {
+      background:rgba(255,255,255,0.2);
+      transform:translateY(-2px);
+    }
+    .tab-button.active {
+      background:linear-gradient(135deg,#ff416c,#ff4b2b);
+      color:#fff;
+      box-shadow:0 8px 30px rgba(255,65,108,0.6);
+    }
+
+    .tab-content {display:none; animation:fadeInUp 0.5s ease;}
+    .tab-content.active {display:block;}
+
+    .tab-content h2 {
+      font-size:1.7rem; margin-bottom:10px;
+      color:#ffd1dc; text-shadow:0 0 10px rgba(255,65,108,0.8);
+    }
+    .tab-content p {
+      font-size:1.05rem; color:#f0f0f0; margin-bottom:10px;
+    }
+
+    .game-card {
+      display:flex; align-items:center; gap:20px;
+      margin:20px auto;
+      padding:15px;
+      background:rgba(255,255,255,0.08);
+      border-radius:15px;
+      box-shadow:0 5px 25px rgba(0,0,0,0.4);
+      max-width:600px;
+      flex-wrap:wrap;
+    }
+
+    .game-image img {
+      width:120px; height:120px;
+      border-radius:12px;
+      object-fit:cover;
+      box-shadow:0 4px 15px rgba(0,0,0,0.5);
+    }
+
+    .game-info {flex:1; text-align:left;}
+
+    .game-info h3 {
+      margin-bottom:10px;
+      color:#ffd1dc;
+      text-shadow:0 0 8px rgba(255,65,108,0.6);
+    }
+
+    .progress-container {
+      width:100%; height:20px;
+      background:rgba(255,255,255,0.15);
+      border-radius:10px;
+      overflow:hidden;
+      margin-bottom:8px;
+    }
+
+    .progress-bar {
+      height:100%;
+      width:0;
+      background:linear-gradient(90deg,#ff416c,#ff4b2b);
+      box-shadow:0 0 10px rgba(255,65,108,0.8);
+      border-radius:10px 0 0 10px;
+      transition:width 1s ease-in-out;
+    }
+
+    .music-card {
+      margin-top:20px; padding:15px;
+      background:rgba(255,255,255,0.1);
+      border-radius:15px;
+      box-shadow:0 8px 20px rgba(0,0,0,0.4);
+      backdrop-filter:blur(10px);
+    }
+
+    .read-btn {
+      margin-top:8px;
+      padding:8px 16px;
+      border:none;
+      border-radius:10px;
+      background:linear-gradient(135deg,#ff416c,#ff4b2b);
+      color:white;
+      font-weight:600;
+      cursor:pointer;
+      box-shadow:0 4px 12px rgba(0,0,0,0.4);
+      transition:all 0.25s ease;
+    }
+    .read-btn:hover {
+      transform:scale(1.06);
+      box-shadow:0 6px 16px rgba(255,65,108,0.6);
+    }
+
+    .enigma-box {
+      background:rgba(255,255,255,0.08);
+      border-radius:15px;
+      padding:25px;
+      max-width:500px;
+      margin:30px auto;
+      box-shadow:0 5px 25px rgba(0,0,0,0.4);
+      backdrop-filter:blur(10px);
+    }
+
+    .enigma-box input {
+      width:80%;
+      margin:8px 0;
+      padding:10px;
+      border:none;
+      border-radius:10px;
+      text-align:center;
+      font-size:1rem;
+      outline:none;
+      background:rgba(255,255,255,0.15);
+      color:#fff;
+    }
+
+    .enigma-box button {
+      margin-top:10px;
+      padding:10px 20px;
+      border:none;
+      border-radius:10px;
+      background:linear-gradient(135deg,#ff416c,#ff4b2b);
+      color:white;
+      font-weight:bold;
+      cursor:pointer;
+      transition:transform 0.2s ease;
+    }
+    .enigma-box button:hover {transform:scale(1.05);}
+    .enigma-message {
+      margin-top:15px;
+      font-size:1.1rem;
+      color:#ffd1dc;
+      text-shadow:0 0 10px rgba(255,65,108,0.8);
+      display:none;
+    }
+
+    @keyframes fadeInUp {
+      from{opacity:0;transform:translateY(20px);}
+      to{opacity:1;transform:translateY(0);}
+    }
+    @keyframes fadeIn {from{opacity:0;}to{opacity:1;}}
+	
+	#tab-7 {
+  text-align: center;
+}
+
+#clicker-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+  </style>
+</head>
+<body>
+  <div class="background"></div>
+
+  <div class="container">
+    <div class="tabs">
+      <div class="tab-button active" data-tab="1">Sentimentos❤</div>
+      <div class="tab-button" data-tab="2">Galeria De jogos🌐</div>
+      <div class="tab-button" data-tab="3">Galeria de Animes🎬</div>
+      <div class="tab-button" data-tab="4">Galeria de Musicas🔊</div>
+      <div class="tab-button" data-tab="5">Cartas📄</div>
+      <div class="tab-button" data-tab="6">Enigma🔒</div>
+	  <div class="tab-button" data-tab="7">Mini Jogo 🎮</div>
+    </div>
+
+    <!-- Sentimentos -->
+    <div id="tab-1" class="tab-content active">
+      <h2>Palavras dedicadas à mulher que tanto amo ❤</h2>
+      <p>Olá minha querida e amada Anny Hemilton Yoshida!</p>
+      <p>Lembro desde o dia que começamos a conversar, o momento que meu coração acelerava e dominar meus pensamentos.</p>
+      <p>Veja essas pequeninas estrelas, esses corações criando vida enquanto nosso amor florece como o infinito, onde vamos conquistar muitas coisas para nossa vida juntos, algo que jamais será apagado</p>
+	  <p>A cada pontinho desse significa caminhos que nosso amor sempre irá percorrer juntos, cada coração um jesto de paixão</p>
+	  <p>Quando a conheci e pude conversar pelo whatsapp, nunca vou esquecer o nervosismo e quanto meu coração estava em minha garganta, cheio de moções, cheio de vontades, cheio de esperanças por algo que nunca senti por ninguem</p>
+	  <p>Desde o momento que entendi o amor que sinto por ti ser cada vez maior, tenho orgulho de sempre mostrar companherismo, amor, carinho que sempre desejei demonstrar, e nenhuma mulher despertou isso em mim, apenas e unicamente você meu amor, a cada dia que se passa eu quero te entender mais, compreender mais, ser o Homem que te fará ser a mulher mais amada desse mundo. </p>
+	  <p> Saiba que sempre irei te compreender e sempre te amar, por todo o tempo que levar meu amor, tudo o que sinto jamais se apagara!</p>
+    </div>
+
+    <!-- Jogos -->
+    <div id="tab-2" class="tab-content">
+      <h2>Lista de jogos!</h2>
+      <p>Veja os jogos que já tivemos contato juntos e estamos realizando mais coisas juntos 😁.</p>
+
+      <div class="game-card">
+        <div class="game-image">
+          <img src="https://www.ecured.cu/images/thumb/c/c9/Genshin-impact_3.jpg/1200px-Genshin-impact_3.jpg" alt="Capa do Jogo">
+        </div>
+        <div class="game-info">
+          <h3>Genshin Impact</h3>
+          <div class="progress-container"><div class="progress-bar" data-progress="40"></div></div>
+          <p>Progresso: 40%</p>
+        </div>
+      </div>
+
+      <div class="game-card">
+        <div class="game-image">
+          <img src="https://tse1.mm.bing.net/th/id/OIP.vZI678zxAUwH7KkAcF42ggAAAA?rs=1&pid=ImgDetMain&o=7&rm=3" alt="Capa do Jogo">
+        </div>
+        <div class="game-info">
+          <h3>Gears 5</h3>
+          <div class="progress-container"><div class="progress-bar" data-progress="45"></div></div>
+          <p>Progresso: 45%</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Animes -->
+    <div id="tab-3" class="tab-content">
+      <h2>Animes que assistimos juntinhos ❤</h2>
+      <p>Cada vez mais essas listas que concluímos juntinhos permanecerão registradas 😊.</p>
+
+      <div class="game-card">
+        <div class="game-image"><img src="https://tse4.mm.bing.net/th/id/OIP.2tsPgybCxevuiW4Oy7Wz2AHaKX?rs=1&pid=ImgDetMain&o=7&rm=3" alt="Gachiakuta"></div>
+        <div class="game-info">
+          <h3>Gachiakuta</h3>
+          <div class="progress-container"><div class="progress-bar" data-progress="93"></div></div>
+          <p>13 de 14 episódios assistidos</p>
+        </div>
+      </div>
+
+      <div class="game-card">
+        <div class="game-image"><img src="https://images8.alphacoders.com/106/thumb-1920-1061123.jpg" alt="Darwin's Game"></div>
+        <div class="game-info">
+          <h3>Darwin’s Game</h3>
+          <div class="progress-container"><div class="progress-bar" data-progress="100"></div></div>
+          <p>12 de 12 episódios assistidos</p>
+        </div>
+      </div>
+
+      <div class="game-card">
+        <div class="game-image"><img src="https://tse4.mm.bing.net/th/id/OIP.rp3oBgihJP0Lde4Ct2OTnwHaEK?rs=1&pid=ImgDetMain&o=7&rm=3" alt="The Last of Us"></div>
+        <div class="game-info">
+          <h3>The Last of Us (2ª Temporada)</h3>
+          <div class="progress-container"><div class="progress-bar" data-progress="37"></div></div>
+          <p>3 de 8 episódios assistidos</p>
+        </div>
+      </div>
+
+      <div class="game-card">
+        <div class="game-image"><img src="https://noticias.radiorama.mx/wp-content/uploads/2022/02/Stranger-Things-.jpg" alt="Stranger Things"></div>
+        <div class="game-info">
+          <h3>Stranger Things (Temporada 1)</h3>
+          <div class="progress-container"><div class="progress-bar" data-progress="70"></div></div>
+          <p>7 de 10 episódios assistidos</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Músicas -->
+    <div id="tab-4" class="tab-content">
+      <h2>Nossas músicas que gostamos de escutar juntinhos!</h2>
+      <p>Todo esse som é uma pequena parte do nosso próprio batimento musical amoroso 😍.</p>
+      <div class="music-card">
+        <iframe style="border-radius:12px" 
+          src="https://open.spotify.com/embed/playlist/6aJ45rseQyo34XcNXlMOR8?utm_source=generator" 
+          width="100%" height="352" frameBorder="0" 
+          allowfullscreen="" 
+          allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture" 
+          loading="lazy">
+        </iframe>
+      </div>
+    </div>
+
+    <!-- Cartas -->
+    <div id="tab-5" class="tab-content">
+      <h2>Cartas</h2>
+      <p>Todas as cartas de amor, dedicação e declaração que farei a ti exclusivamente e eternamente assim como meu amor.</p>
+
+      <div class="game-card">
+        <div class="game-image"><img src="https://img.freepik.com/fotos-premium/coracao-com-uma-linha-de-batidas-cardiacas-ia-generativa_896686-16251.jpg"></div>
+        <div class="game-info"><h3>Carta 1 - Carta para Anny  💞</h3>
+          <button class="read-btn" onclick="window.open('https://takkitx.github.io/Carta/Carta.html')">Ler Carta 💌</button></div>
+      </div>
+
+      <div class="game-card">
+        <div class="game-image"><img src="https://img.freepik.com/vector-premium/amor-fondo-negro_37940-11.jpg"></div>
+        <div class="game-info"><h3>Carta 2 - Declaração romantica 🌅</h3>
+          <button class="read-btn" onclick="window.open('https://takkitx.github.io/Amor/Dia%20dos%20namorados')">Ler Carta 💌</button></div>
+      </div>
+
+      <div class="game-card">
+        <div class="game-image"><img src="https://www.fastneonsigns.com/cdn/shop/products/fingerheart5_1024x.jpg?v=1599557798"></div>
+        <div class="game-info"><h3>Carta 3 - Primeira declaração de amor 🌙</h3>
+          <button class="read-btn" onclick="window.open('https://giftsqr.com/pt/love/anny-ge-knagn1il7jzwbpwed1u9q')">Ler Carta 💌</button></div>
+      </div>
+
+      <div class="game-card">
+        <div class="game-image"><img src="https://img.freepik.com/premium-vector/love-sign-design_1189-1685.jpg"></div>
+        <div class="game-info"><h3>Carta 4 - Nosso cupido 💍</h3>
+          <button class="read-btn" onclick="window.open('https://photos.google.com/share/AF1QipMQfRSvLm-_9IlkNNeaoWkuKsLATj0bb9OPODcBN86VUcYu7p2dz1Q6dU8m8PDZAw?pli=1&key=aDU5UWRZZlpvSFpLUVdDNkh6TFA4emhBZHpLVmR3')">Ler Carta 💌</button></div>
+      </div>
+	  
+	  <div class="game-card">
+        <div class="game-image"><img src="https://th.bing.com/th/id/R.699a3108a1d5b86b3bceebe5ffd59b4b?rik=xqCxJnPXL4YijA&riu=http%3a%2f%2ffestas.site%2fwp-content%2fuploads%2f2017%2f03%2ffesta-neon-1.jpg&ehk=CtUCz0ze%2fSKzR8McUTFZ5bWlmqcH%2bA2AW9oFmIBur%2bc%3d&risl=&pid=ImgRaw&r=0"></div>
+        <div class="game-info"><h3> Comemoração de promoção 🎉</h3>
+          <button class="read-btn" onclick="window.open('https://photos.google.com/share/AF1QipMQfRSvLm-_9IlkNNeaoWkuKsLATj0bb9OPODcBN86VUcYu7p2dz1Q6dU8m8PDZAw?pli=1&key=aDU5UWRZZlpvSFpLUVdDNkh6TFA4emhBZHpLVmR3')">Ler Carta 💌</button></div>
+      </div>
+    </div>
+
+    <!-- Enigma -->
+    <div id="tab-6" class="tab-content">
+      <h2>Enigma do Amor 🔐</h2>
+      <p>Para descobrir a senha veja o resultado do Mini-Jogo e seu conteudo da carta e descubra a senha, Dica "Senha_não_contem_espaços" 💌</p>
+      <div class="enigma-box">
+        <input type="text" id="enigmaUser" placeholder="Usuário" /><br />
+        <input type="password" id="enigmaPass" placeholder="Senha" /><br />
+        <button id="enigmaButton">Desvendar</button>
+        <div class="enigma-message" id="enigmaMessage"></div>
+      </div>
+    </div>
+  
+<!-- 🩷 Mini Jogo -->
+<div id="tab-7" class="tab-content">
+  <h2>Jogo do Amor 💖</h2>
+  <p>Clique no coração para ganhar amor e desbloquear sua senha para ver sua carta de amor e sentimentos sobre sua promoção Dica " Apenas duas palavras das 3 frases são usuario e senha "!</p>
+
+  <div id="clicker-container" style="margin-top:40px; text-align:center;">
+    <!-- Coração -->
+    <div id="heart" style="
+      width:100px; height:100px; background:#ff4b2b;
+      transform:rotate(-45deg); margin:0 auto 40px auto; cursor:pointer;
+      position:relative; border-radius:8px;
+      box-shadow:0 0 15px rgba(255,75,43,0.7);
+      transition:transform 0.1s ease;">
+      <div style="position:absolute; top:-50px; left:0; width:100px; height:100px; background:#ff4b2b; border-radius:50%;"></div>
+      <div style="position:absolute; top:0; left:50px; width:100px; height:100px; background:#ff4b2b; border-radius:50%;"></div>
+    </div>
+
+    <!-- Pontuação -->
+    <p style="font-size:1.3rem; color:#ffd1dc; margin-bottom:10px;">
+      Pontos de amor: <span id="score" style="font-weight:bold;">0</span>
+    </p>
+
+    <!-- Mensagens -->
+    <div id="unlock-message" style="
+      margin-top:20px;
+      display:flex;
+      flex-direction:column;
+      gap:8px;
+      align-items:center;
+      color:#ffd1dc;
+      font-weight:bold;
+      text-shadow:0 0 10px rgba(255,65,108,0.8);">
+    </div>
+  </div> <!-- fecha clicker-container -->
+</div> <!-- fecha tab-7 -->
+
+
+
+  <script>
+    const buttons = document.querySelectorAll(".tab-button");
+    const contents = document.querySelectorAll(".tab-content");
+    buttons.forEach(button=>{
+      button.addEventListener("click",()=>{
+        buttons.forEach(b=>b.classList.remove("active"));
+        contents.forEach(c=>c.classList.remove("active"));
+        button.classList.add("active");
+        const active=document.getElementById("tab-"+button.dataset.tab);
+        active.classList.add("active");
+        animateProgress(active);
+      });
+    });
+
+    function animateProgress(container){
+      const bars = container.querySelectorAll(".progress-bar");
+      bars.forEach(bar=>{
+        bar.style.width="0";
+        setTimeout(()=>{bar.style.width=bar.dataset.progress+"%";},200);
+      });
+    }
+
+    // Fundo com estrelas e corações
+    const bg=document.querySelector(".background");
+    for(let i=0;i<60;i++){
+      const s=document.createElement("div");
+      s.classList.add("star");
+      s.style.left=Math.random()*100+"%";
+      s.style.top=Math.random()*100+"%";
+      s.style.animationDelay=Math.random()*3+"s";
+      bg.appendChild(s);
+    }
+    for(let i=0;i<6;i++){
+      const h=document.createElement("div");
+      h.classList.add("heart");
+      h.style.left=Math.random()*100+"%";
+      h.style.top=Math.random()*100+"%";
+      h.style.animationDelay=Math.random()*2+"s";
+      bg.appendChild(h);
+    }
+
+    // Enigma
+	document.getElementById("enigmaButton").addEventListener("click", () => {
+  const user = document.getElementById("enigmaUser").value.toLowerCase();
+  const pass = document.getElementById("enigmaPass").value;
+  const msg = document.getElementById("enigmaMessage");
+  const validUsers = ["anny", "anny yoshida", "a.yoshida", "annytonani"];
+
+  if (validUsers.includes(user) && pass === "Yoshida_Tonani#2026") {
+    msg.style.display = "block";
+    msg.innerHTML = `
+      <div id="loveLetter" style="
+        max-width:700px;
+        margin:20px auto;
+        padding:25px;
+        background:rgba(255,255,255,0.15);
+        border-radius:20px;
+        box-shadow:0 0 25px rgba(255,65,108,0.6);
+        color:#fff;
+        text-align:justify;
+        line-height:1.6;
+        font-size:1.1rem;
+        backdrop-filter:blur(12px);
+        animation: expandLetter 1s ease forwards;
+      ">
+        <h3 style="text-align:center; color:#ffd1dc; text-shadow:0 0 10px rgba(255,65,108,0.8);">
+          💖 Carta do Amor Revelada 💖
+        </h3>
+        <p style="margin-top:15px;">
+		  Oiiiiiiiii meu amorzinhuuuuuu💖💖💖💖💖💖💖
+		  Tenho algo importante para te falar!!
+		  Saiba que fico animado para ter você em meus braços, sentir a minha amada abraçada em mim todos os dias e noites💖
+		  Algo que eu quero muito e a cada dia me da cada vez mais certeza, é o quanto eu quero casar com você, o quanto a quero fazer feliz todos os dias da minha vida!
+		  Estamos celebrando boas evoluções, amor, companherismos juntos a todo momento, tudo isso deixa de ser simples e basico em nossa vida.
+		  
+          Meu amor Anny, hoje celebramos algo muito além de um simples enigma — celebramos o quanto nosso amor cresce, mesmo nas entrelinhas dos nossos dias. 
+          Você é o motivo de cada sorriso espontâneo, cada suspiro no silêncio da noite e de cada batida mais acelerada do meu coração. 
+          O universo inteiro parece conspirar para que nossas almas se encontrem a cada novo amanhecer, e isso é a maior sorte que a vida poderia me dar. 💫<br><br>
+          Nada neste mundo se compara à paz que encontro no som da tua voz, ao brilho do teu olhar que sempre ilumina até os meus dias mais nublados. 
+          Você é poesia viva, é sonho que se fez real, é constelação que guia o meu caminho. 🌙<br><br>
+          Que esta carta sirva como lembrança eterna de que, mesmo nos momentos em que o vento soprar contrário, 
+          eu estarei aqui, firme, para te proteger, te amar e te fazer sorrir — sempre. 
+          Porque amar você é o meu destino, e este destino é o mais lindo que eu poderia desejar. 💞<br><br>
+          — De seu eterno apaixonado, que te ama além das estrelas✨ Aquele que a deseja como esposa eterna 💞 
+        </p>
+      </div>
+    `;
+
+    // animação de entrada da carta
+    const style = document.createElement("style");
+    style.innerHTML = `
+      @keyframes expandLetter {
+        from { transform: scale(0.8); opacity: 0; }
+        to { transform: scale(1); opacity: 1; }
+      }
+    `;
+    document.head.appendChild(style);
+  } else {
+    msg.style.display = "block";
+    msg.textContent = "💔 Opa, pense um pouquinho melhor meu amor 💭";
+  }
+});
+	
+	
+	// 🎮 Mini jogo com som funcional
+let score = 0;
+const heart = document.getElementById("heart");
+const scoreDisplay = document.getElementById("score");
+const messageBox = document.getElementById("unlock-message");
+const heartbeatSound = new Audio("https://cdn.pixabay.com/download/audio/2022/03/15/audio_d6f8e1c041.mp3?filename=heartbeat-109245.mp3");
+
+heart.addEventListener("click", () => {
+  score++;
+  scoreDisplay.textContent = score;
+
+  // animação
+  heart.style.transform = "scale(1.25) rotate(-45deg)";
+  setTimeout(() => heart.style.transform = "scale(1) rotate(-45deg)", 150);
+
+  // som
+  heartbeatSound.currentTime = 0;
+  heartbeatSound.play().catch(() => {});
+
+  // mensagens desbloqueadas
+  if (score === 10) {
+    const msg = document.createElement("div");
+    msg.textContent = "💖 Anny 💕";
+    msg.style.color = "#ffd1dc";
+    messageBox.appendChild(msg);
+  }
+  if (score === 25) {
+    const msg = document.createElement("div");
+    msg.textContent = "💞 Parabéns por sua promoção 💞";
+    msg.style.color = "#ffd1dc";
+    messageBox.appendChild(msg);
+  }
+  if (score === 50) {
+    const msg = document.createElement("div");
+    msg.textContent = "#umcasal_em_2026 💍";
+    msg.style.color = "#ffd1dc";
+    messageBox.appendChild(msg);
+  }
+});
+  </script>
+</body>
+</html>
