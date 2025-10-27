@@ -1,0 +1,389 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Filtros e Orçamento</title>
+  <style>
+    /* Fundo animado com estrelas e paralaxe */
+    body {
+      margin: 0;
+      padding: 0;
+      font-family: 'Poppins', sans-serif;
+      color: #fff;
+      height: 100vh;
+      background: radial-gradient(ellipse at bottom, #0d1b2a 0%, #000000 100%);
+      overflow-x: hidden;
+      perspective: 1px;
+      transform-style: preserve-3d;
+    }
+
+    .stars {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 200%;
+      height: 200%;
+      background: transparent;
+      pointer-events: none;
+      animation: moveStars 120s linear infinite;
+      z-index: 0;
+    }
+
+    .stars::after {
+      content: '';
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      box-shadow:
+        100px 200px #fff, 200px 400px #fff, 300px 600px #fff,
+        400px 800px #fff, 500px 1000px #fff, 600px 1200px #fff,
+        700px 1400px #fff, 800px 1600px #fff, 900px 1800px #fff;
+      opacity: 0.8;
+    }
+
+    @keyframes moveStars {
+      0% { transform: translateY(0px); }
+      100% { transform: translateY(-200px); }
+    }
+
+    /* Container principal */
+    .container {
+      position: relative;
+      z-index: 2;
+      width: 90%;
+      max-width: 850px;
+      margin: 60px auto;
+      background: rgba(15, 25, 40, 0.8);
+      border-radius: 20px;
+      box-shadow: 0 0 25px rgba(255, 255, 255, 0.1);
+      backdrop-filter: blur(8px);
+    }
+
+    /* Abas */
+    .tabs {
+      display: flex;
+      justify-content: center;
+      background: rgba(255, 255, 255, 0.08);
+    }
+
+    .tab {
+      flex: 1;
+      text-align: center;
+      padding: 12px;
+      cursor: pointer;
+      color: #fff;
+      font-weight: 600;
+      transition: 0.3s;
+    }
+
+    .tab.active {
+      background: #ff4d6d;
+      border-bottom: 3px solid #ffccd5;
+      border-radius: 10px 10px 0 0;
+    }
+
+    .content {
+      padding: 25px;
+      display: none;
+      animation: fadeIn 1s ease-in-out;
+    }
+
+    .content.active {
+      display: block;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* Título com animação de escrita e brilho */
+    h2 {
+      text-align: center;
+      color: #ffb6c1;
+      text-shadow: 0 0 10px #ff69b4, 0 0 20px #ff69b4;
+      font-size: 1.5em;
+      margin-bottom: 20px;
+      white-space: nowrap;
+      overflow: hidden;
+      border-right: 2px solid #ffb6c1;
+      width: fit-content;
+      margin-left: auto;
+      margin-right: auto;
+      animation: typing 3.5s steps(40) 1s 1 normal both, blink 0.8s step-end infinite;
+    }
+
+    @keyframes typing {
+      from { width: 0; }
+      to { width: 100%; }
+    }
+    @keyframes blink {
+      50% { border-color: transparent; }
+    }
+
+    /* Filtros */
+    .filterSection {
+      background: rgba(255, 255, 255, 0.08);
+      padding: 20px;
+      border-radius: 10px;
+      margin-bottom: 15px;
+    }
+
+    label {
+      display: block;
+      font-weight: bold;
+      color: #fff;
+      margin-top: 10px;
+    }
+
+    select {
+      width: 100%;
+      padding: 10px;
+      border-radius: 8px;
+      border: none;
+      margin-top: 5px;
+      background: rgba(255, 255, 255, 0.9);
+      color: #000;
+      font-weight: 500;
+    }
+
+    /* Cards de itens */
+    .items {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 15px;
+      margin-top: 15px;
+      max-height: 500px;
+      overflow-y: auto;
+      justify-content: center;
+    }
+
+    .item {
+      flex: 1 1 calc(45% - 10px);
+      background: rgba(255, 255, 255, 0.08);
+      border-radius: 10px;
+      text-align: center;
+      padding: 10px;
+      transition: transform 0.3s ease, background 0.3s;
+      max-width: 250px;
+    }
+
+    .item:hover {
+      transform: scale(1.05);
+      background: rgba(255, 255, 255, 0.12);
+    }
+
+    .item img {
+      width: 100%;
+      max-height: 140px;
+      object-fit: cover;
+      border-radius: 10px;
+    }
+
+    .item h4 {
+      font-size: 0.9em;
+      margin-top: 8px;
+      color: #fff;
+    }
+
+    .btn {
+      display: inline-block;
+      margin-top: 6px;
+      background: #ff4d6d;
+      color: white;
+      padding: 6px 14px;
+      border-radius: 8px;
+      text-decoration: none;
+      font-weight: bold;
+      transition: background 0.3s;
+      font-size: 0.8em;
+    }
+
+    .btn:hover {
+      background: #ff758f;
+    }
+
+    iframe {
+      width: 100%;
+      height: 500px;
+      border: none;
+      border-radius: 10px;
+    }
+
+    @media (max-width: 600px) {
+      .item { flex: 1 1 100%; }
+      h2 { font-size: 1.1em; }
+      .container { margin: 20px auto; }
+    }
+  </style>
+</head>
+<body>
+  <div class="stars"></div>
+
+  <div class="container">
+    <div class="tabs">
+      <div class="tab active" onclick="showTab('filtros')">Filtro de modelos e listas</div>
+      <div class="tab" onclick="showTab('orcamento')">Orçamento</div>
+    </div>
+
+    <!-- Aba Filtros -->
+    <div id="filtros" class="content active">
+      <h2>Escolha seu estilo preferido 🎨</h2>
+
+      <div class="filterSection">
+        <label for="estilo">Estilo:</label>
+        <select id="estilo">
+          <option value="">Selecione...</option>
+          <option value="barato">Barato</option>
+          <option value="perifericos">Periféricos</option>
+        </select>
+
+        <div id="modeloContainer" style="display:none;">
+          <label for="modelo">Modelo:</label>
+          <select id="modelo">
+            <option value="">Selecione...</option>
+            <option value="rapido">Rápido</option>
+            <option value="mediano">Mediano</option>
+            <option value="bonito">Bonito</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="items" id="itensContainer"></div>
+    </div>
+
+    <!-- Aba Orçamento -->
+    <div id="orcamento" class="content">
+      <iframe src="https://docs.google.com/spreadsheets/d/1k36YhAp4jW1vXVrMAxOy7pc2NTWNOEKyhBVK7EYG7J0/edit?gid=0#gid=0"></iframe>
+    </div>
+  </div>
+
+  <script>
+    const data = {
+        barato: {
+          rapido: [
+			{ nome: 'Core i7 - GTX 1050Ti $499.99', img: 'https://m.media-amazon.com/images/I/710Ej5EM+5L._AC_SL1500_.jpg', link: 'https://www.amazon.ca/AXOII-Desktop-Computer-Processor-Bluetooth/dp/B0FR5NM4N5?ref_=Oct_d_onr_d_677250011_4&pd_rd_w=Z5fp6&content-id=amzn1.sym.7b441bd6-a65d-4d2f-9222-f35257c4b0dd&pf_rd_p=7b441bd6-a65d-4d2f-9222-f35257c4b0dd&pf_rd_r=CFG82NGP0CTBMNQBXJMT&pd_rd_wg=sJ6Id&pd_rd_r=5e606836-fe33-4fa6-b07f-09a934b7e905&pd_rd_i=B0FR6DBYJS&th=1' },
+            { nome: 'Core i7 - RX 580     $679', img: 'https://m.media-amazon.com/images/I/71J2cXvEo5L._AC_SL1200_.jpg', link: 'https://www.amazon.ca/STGAubron-Gaming-Computer-Desktop-Windows/dp/B0DXGQ2S9W?ref_=Oct_d_omwf_d_677250011_3&pd_rd_w=os4mC&content-id=amzn1.sym.32cabd8d-d441-4a31-8de8-e1a87830be4f&pf_rd_p=32cabd8d-d441-4a31-8de8-e1a87830be4f&pf_rd_r=CFG82NGP0CTBMNQBXJMT&pd_rd_wg=sJ6Id&pd_rd_r=5e606836-fe33-4fa6-b07f-09a934b7e905&pd_rd_i=B0DXGQ2S9W&th=1' },
+			{ nome: 'Ryzen 5 - 5600GT     $659', img: 'https://m.media-amazon.com/images/I/71mm6h2EyGL._AC_SL1500_.jpg', link: 'https://www.amazon.ca/ARMOURY-Graphics-Windows-Bluetooth-Desktop/dp/B0FM7RNRHQ/ref=sr_1_107?dib=eyJ2IjoiMSJ9.anVjCR0wRXAlj-np7PGNVo_gMZbWL213BsylTCZM3RdYlhFXK6nBOqVBOVEwFPVSUEpvO_FD03j-mSYcTNyxaGf4MuCUngGkOeZjx6ZZdtjyLHkZduKewvlEpY8Zt6nLLfmm-VhyicHNjFaUrukpytm71f5IxuUvJm1mAecaSZHbeEQdyg67nI39wSGsOQOz_Cv2PSD8hCsHY1dtJfGJcA.RzDcLLkbFkz7EfmHiYig8HsuieP3VoKtnpZpEcXq6vY&dib_tag=se&qid=1761521615&s=pc&sr=1-107&xpid=a96m-tz_Kfufs' },
+			{ nome: 'Core i7 - RX 580     $679', img: 'https://m.media-amazon.com/images/I/81OScLXqYZL._AC_SL1500_.jpg', link: 'https://www.amazon.ca/STGAubron-Gaming-Radeon-i5-9400F-Keyboard/dp/B0DXGQ2S9W/ref=sr_1_195?dib=eyJ2IjoiMSJ9.yZPpXPqVaISRu4AB7aghAVAzQfjrpj8n2aiEDJySxZ8jT6zfhXVHNe56ejOo7sTU4xCnc3GJY9oBG7Z8QZrvM0iJy1ns_AGqulW1OEQ_xM5ulZE8xxEtHAtvDkkeGhjjZuIGXXSd3NUTfl5NMLeXgw.WiU8ICVNTyjWKs8vcgNrdw6OmJOpa65RyqTJp0pE7PY&dib_tag=se&qid=1761521668&s=pc&sr=1-195&xpid=a96m-tz_Kfufs&th=1' },
+			{ nome: 'Core i7 - RX 560     $659', img: 'https://m.media-amazon.com/images/I/71esuV17qtL._AC_SL1200_.jpg', link: 'https://www.amazon.ca/STGAubron-Gaming-Computer-Desktop-Windows/dp/B0DYNWF5ZJ/ref=sr_1_217?dib=eyJ2IjoiMSJ9.v3FIX7lkC__VWO2RutVFzSuFSE7aFdOwDy6qAxFiypvM3Kjs8qzyOZAvkLZAzSrrWKK8t9F3uoRu9oL6xvGFFC8nrpsOlOJQdgWXJHzQzz2xDZE36YMSIoVS5p4hSIVzjbHq46hT6fXdqouEAIBsEw.YKzh4ht0LewkjaKC5WiPOi44q5Ngr4R9JsZT8w753fQ&dib_tag=se&qid=1761521685&s=pc&sr=1-217&xpid=a96m-tz_Kfufs&th=1' },
+			{ nome: 'AMD Athlon 3000G - RX580 $665', img: 'https://m.media-amazon.com/images/I/71qQu8reciL._AC_SL1500_.jpg', link: 'https://www.amazon.ca/STGAubron-Gaming-Radeon-Athlon-Keyboard/dp/B0D4Z4FSCC/ref=sr_1_348?dib=eyJ2IjoiMSJ9.zxx1JdkmcOU9MnpVWL0M3XAOV2Ury22xiz_dtxIKGAV5m-z5h47UfcsQ3ySa12nzQMeKB0h3c0wE6m98eqo4LJRHWlFYSbF9dK6twpdOdxTroS_LZ2odGp57_7ix5Jnig-batoZoxF1kIZzOmV2cPOsUTyj9PEJ4NvAKUbIOK2dFO-ljVYuutwA-RPUY7v6X0cYh-gdpGfW6wUhccT0wvw.zxotyyB4LyC4Jn4OwUJU5kYzedmFtTQZzPQ_a16LqgA&dib_tag=se&qid=1761521775&s=pc&sr=1-348&xpid=a96m-tz_Kfufs&th=1' },
+			{ nome: 'Core i7 - RX590      $673', img: 'https://m.media-amazon.com/images/I/71jljMAawBL._AC_SL1500_.jpg', link: 'https://www.amazon.ca/Prebuilt-Computer-Operating-Frequency-Graphics/dp/B0F1M9NZ91/ref=sr_1_363?dib=eyJ2IjoiMSJ9.fuA74H5lGAAokyH3pZmDl9F4oHBlrhuZ_DRJ42hT96EQ2ZW56eK_8SAH8EZ8r69qBT8JA2WH0KzlzbHin-hWhTueIxtmYVBYRGm_VcLJhCHU_NuUnKt84ITRvg8ywaLNX3kpmiOUauh3K-E88aTyMA.7JVplPGvGVgYX3xlWrkTwXki3YuSiz0E7fc2bHcLPeA&dib_tag=se&qid=1761521790&s=pc&sr=1-363&xpid=a96m-tz_Kfufs&th=1' },
+			{ nome: 'Core i7 - GTX 1650  $549', img: 'https://m.media-amazon.com/images/I/710Ej5EM+5L._AC_SL1500_.jpg', link: 'https://www.amazon.ca/AXOII-Desktop-Computer-Processor-Bluetooth/dp/B0FR57T56C/ref=sr_1_374?dib=eyJ2IjoiMSJ9.QL3C8urFNIfSnvp0kJeF9_34_eIoR3kWV_zJrICtpiJ5TleAPhkA9E6bnpoeWNxarQlgAALtCa_3iuhQxUWc1PlrPKAEt_A3n1cx18uAkByxgJqa7Ze7Au5KGcGBFRs_2Ryn-AxooyI_tEC_cj7Ii2z9Qb0Jn8wnsG5zhxrBWTZXMvl8prguc2pBWJ8rAgjH2sl4g-fclDovdMWj4pM5qw.biwwdWmrYCCOGl-Se4fxVa8jokpPjL665txquAso2vI&dib_tag=se&qid=1761521790&s=pc&sr=1-374&xpid=a96m-tz_Kfufs&th=1' },
+			{ nome: 'Core i7 - GeForce RTX 3050 $654 ', img: 'https://m.media-amazon.com/images/I/81u+Tr69KqL._AC_SL1500_.jpg', link: 'https://www.amazon.ca/AQVIN-LuminaRings-Gaming-Computer-Tower/dp/B0D8R82NY2/ref=sr_1_538?dib=eyJ2IjoiMSJ9.MKzcD3dm4TcGP7sMAnEoAud0byNCU0VPY0O9nmMp_FOkY7_dq03D3UbFt6BGD-H4oJSIzIlyKolHbj-Rbq9qXCA4tg5YTOLfokZcbGzJiJd6-eC3rqlD1eiOY55e-tNVQAxulZdQJQj5XGQaDlbV7M4bKQ3fCK0I4LI_CQlmKMXGi4cU3bEQtTllSFD64DHTljKdhep6U_pGTDV16XdMaw.xPyAaPUmdYnshPee-5GybbP_UBwzf8zwbJNBFl9mZ4Q&dib_tag=se&qid=1761521946&s=pc&sr=1-538&xpid=a96m-tz_Kfufs&th=1' },
+			{ nome: 'Core i7 - GTX 1650   $519', img: 'https://m.media-amazon.com/images/I/710Ej5EM+5L._AC_SL1500_.jpg', link: 'https://www.amazon.ca/AXOII-Desktop-Computer-Processor-Bluetooth/dp/B0FR57CTLW/ref=sr_1_579?dib=eyJ2IjoiMSJ9.k_XI1tUWfBS7OyhaG5VGGyhMLCTnDzUhOqGTbYRuDJJI0-qrJoV7wUQ-9yo-wE3-R5eYJWjafKEK35LQ0-DRPOqDNjboesvGQD8fSVaPuFLb6D2MV5UYzOPypOGbWGd0li8re8cqhjCBb_LMUsBtJ9iciQNh4xKdOQwSs7wpVI_0AtQxFMvx7Ywlha-6FV5py32wTRiIjQeqIAMAg7mIRg.-NGRRZXtDkdnut1_KObZDyDTHx8Sb3yGqoUwNPD8u24&dib_tag=se&qid=1761521987&s=pc&sr=1-579&xpid=a96m-tz_Kfufs&th=1' },
+			{ nome: 'Core I7 - GTX 1050Ti $657', img: 'https://m.media-amazon.com/images/I/7103Jb2B73L._AC_SL1500_.jpg', link: 'https://www.amazon.ca/ZER-LON-Desktop-Prebuilt-Computer-Cooling/dp/B0FPDYSF8P/ref=sr_1_588?dib=eyJ2IjoiMSJ9.k_XI1tUWfBS7OyhaG5VGGyhMLCTnDzUhOqGTbYRuDJJI0-qrJoV7wUQ-9yo-wE3-R5eYJWjafKEK35LQ0-DRPOqDNjboesvGQD8fSVaPuFLb6D2MV5UYzOPypOGbWGd0li8re8cqhjCBb_LMUsBtJ9iciQNh4xKdOQwSs7wpVI_0AtQxFMvx7Ywlha-6FV5py32wTRiIjQeqIAMAg7mIRg.-NGRRZXtDkdnut1_KObZDyDTHx8Sb3yGqoUwNPD8u24&dib_tag=se&qid=1761521987&s=pc&sr=1-588&xpid=a96m-tz_Kfufs' },
+			{ nome: 'Core I7 - RTX 3050   $699', img: 'https://m.media-amazon.com/images/I/81Voaxfoz5L._AC_SL1500_.jpg', link: 'https://www.amazon.ca/Gaming-Tower-Desktop-AQVIN-LuminaRings/dp/B0D8R7FB1W/ref=sr_1_612?dib=eyJ2IjoiMSJ9.W6mJoxY9Atns15YsDzYJ9uUAvpNLkUBhXyibzMm4O5Rpuu6PgpgKfM-4D_LKl1r0e6He7s2mjmx0pt5Mx3L0-dkkkCwrArF4ljvq0ky7Cgy1aS0OUyuYBOjYIGJLTuVAwpSnulAGLQ962TJv5SZHRGsMLmzG6KbNvGB8Y62CIBlt5mmS2yBPzZlZeZ5mH3vI2EHtiQ0S6t747nPObXTvmA.ztu5MoIy5oa6zzCDoA1HmuCsSgRmPoUIpLFLFPrQ008&dib_tag=se&qid=1761522743&s=pc&sr=1-612&xpid=a96m-tz_Kfufs&th=1' },
+			{ nome: 'Core i7 - RX 550     $519', img: 'https://m.media-amazon.com/images/I/81gUgHounAL._AC_SL1500_.jpg', link: 'https://www.amazon.ca/OptiPlex-Desktop-Computer-Monitor-Keyboard/dp/B0BLQY6VF3/ref=sr_1_629?dib=eyJ2IjoiMSJ9.Ug3DsObSewAIv6y0WKl2Yu2a7jw1LRwwmCOLjzB30gbtG1xsklB-Mj8N-tPQ41IcVU3LlC4HXEfes46yTMJztPs9IwuTPwNQhhsH0Ej37l376BwEVXfvX3AbDP74BCA0hKqcYe6NtyH313Oxq6C7Ug.xsAZFgPCf4_r91FwX73XeALBCg5eHHJTdO3--vW5MLY&dib_tag=se&qid=1761522751&s=pc&sr=1-629&xpid=a96m-tz_Kfufs&th=1' },
+			{ nome: 'Core i5 - GTX 1050 Ti $559', img: 'https://m.media-amazon.com/images/I/71VG0sqKRNL._AC_SL1500_.jpg', link: 'https://www.amazon.ca/AXOII-RGB-Gaming-Desktop-Bluetooth/dp/B0FTC9QXL3/ref=sr_1_658?dib=eyJ2IjoiMSJ9.3Mw8VxmG40-5Cokd053HVNxcB-ZLGQMXQUkQhayJOxeTFtU6MlLPqbPs2Z5MhaU37mEn4YmQOEDuTT8u72XwMLvnBe6OBQ0LWitUtAZxrCgvWW-CsqJaqu9LwREsRr_EEDkyHa-JXkEBUjIcY6vVzw.sId2BbmSJdUWtWa3K1rqOv53JkavzXpb67hhR2dTVlw&dib_tag=se&qid=1761522772&s=pc&sr=1-658&xpid=a96m-tz_Kfufs&th=1' },
+			{ nome: 'Core I7 - RTX 3050   $699', img: 'https://m.media-amazon.com/images/I/61eGTW-FeQL._AC_SL1500_.jpg', link: 'https://www.amazon.ca/AQVIN-InfinityLite-Desktop-Processor-Keyboard/dp/B0D952SDMQ/ref=sr_1_721?dib=eyJ2IjoiMSJ9.PCR9nlfiHhUwUnx0jmo8NBmPldZ5bv6UKEL-jPKMvdU6ff8qM_mMISz-8B16TprqzvTlO570WQW-PLpOFa7B047HA7zaFQHtb9gQ7BkbkriFahsGcXRHW6vIeSwI6D_ypA0fQt3z_wNMCbEUgv--sw.rrR9BxhcaJPweVnbbA94aGTAXOxr87awBa3_QA8MIGc&dib_tag=se&qid=1761522829&s=pc&sr=1-721&xpid=a96m-tz_Kfufs&th=1' },
+			{ nome: 'Core i7 - RTX 3050   $649', img: 'https://m.media-amazon.com/images/I/710Ej5EM+5L._AC_SL1500_.jpg', link: 'https://www.amazon.ca/AXOII-Desktop-Computer-Processor-Bluetooth/dp/B0FR62LVDW/ref=sr_1_824?dib=eyJ2IjoiMSJ9.2Bne0VwsY9pNIfVdhToFOGO-kRqXY_G4pp6YAOz4iSuWG4ULiamzWlCdORvdq9sZ2BSwnUTkSUdYB6-HpdJEtrqY6W5kAT5dxUFMLMyNInpK2n7Y0Hvsisot_XhTIMZaQfyZPrv8hl0eZme6mGQJtWuYODIdTZDax_Hlvx_nFs9jnHS3lZ94pInJCuH6r4aX__B53IjzDWdphhQ1PE9tEg.RpnQkU8UwdM2UsaZz70R07bOHog1zgzhnslwPDcRjvY&dib_tag=se&qid=1761522888&s=pc&sr=1-824&xpid=a96m-tz_Kfufs&th=1' },
+			{ nome: 'Core i7 - RX 550     $479', img: 'https://m.media-amazon.com/images/I/710Ej5EM+5L._AC_SL1500_.jpg', link: 'https://www.amazon.ca/AXOII-Desktop-Computer-Processor-Bluetooth/dp/B0FR5HNCJN/ref=sr_1_847?dib=eyJ2IjoiMSJ9.H7wZBIlaEDWm8s17y8nEieYUjcdASPiy2F7csBMSf2GBI3rfzLvqbEORWkOQVjwGpJrn-k4wEpYoHxtgwaPi0uZWTuM_6xUiecLDwT96YWvFBjP6bGlh2KOIWlCP8IpqdXG-qoqYsDwvXz33DSTa5w.nTrOcbWi0XKfBGwCJ_-eIzzValNFZ2Bv7LI92e9Hj88&dib_tag=se&qid=1761522907&s=pc&sr=1-847&xpid=a96m-tz_Kfufs&th=1' },
+			{ nome: 'Core i5 - GTX 1650   $489', img: 'https://m.media-amazon.com/images/I/71ssI+6V0qL._AC_SL1500_.jpg', link: 'https://www.amazon.ca/HP-RGB-Gaming-Desktop-Computer/dp/B0CCBZSK23/ref=sr_1_845?dib=eyJ2IjoiMSJ9.fTY1XMQDydpjDFH9VdLCfwjzUUa2_FcmS_IP8LrZvbpj9aWGQ0AG53WL68ABqCGtPdLmWl0sE8t3CpBO220ZRM7N1jLzW13a18_13lnJzScHnZbG0wS-HCKboOh11WKvgYzGZiiGKXuzM_zibW10X1mmN5Ef515s4ERDs7LgR1dqOwxa0NwzxW3Yef4lkyChHfoI38crl18nQVAXVxRDDA.zHzlhScQXZRUmo_LjamY1b53zA243WBHa5Od5bmxglk&dib_tag=se&qid=1761522907&s=pc&sr=1-845&xpid=a96m-tz_Kfufs' },
+			{ nome: 'Core i7 - RX 550     $449', img: 'https://m.media-amazon.com/images/I/812-DBxudcL._AC_SL1500_.jpg', link: 'https://www.amazon.ca/AXOII-Lights-Gaming-Processor-Bluetooth/dp/B0FRJQ7CFK/ref=sr_1_874?dib=eyJ2IjoiMSJ9.lIHwCMS0al-lRZgZxAtbguky3Wo7RGRoy5wXkfs0naQkL42drERWs7ZPNBM8RSwASKN8l2h4LSoAE2Ub2XpoSIY7Go9oSHikFxMhWu1we2HxE1wz7JiHjFxXg9A2PPVFzBEph3qXv9MPjLf_kCUiq64fJl6YEV3sYWwQ69Ugk9OAUTC0A5LihMAsn1uK8mBmveRARtqTc_N73ktSJO4W-Q.2-_x6_9LUCp-paEJCp2usM5IKS1Q9AzFOGxowGmB0Dg&dib_tag=se&qid=1761522936&s=pc&sr=1-874&xpid=a96m-tz_Kfufs&th=1' },
+			{ nome: 'Core i5 - GTX 1650   $519', img: 'https://m.media-amazon.com/images/I/71ssI+6V0qL._AC_SL1500_.jpg', link: 'https://www.amazon.ca/AXOII-Desktop-Computer-Processor-Bluetooth/dp/B0FR57CTLW/ref=sr_1_986?dib=eyJ2IjoiMSJ9.DwuqNTGgEJYfXp3L17AQKJ0NeFURwAqEGGk0jjBsLmDFH2-JtDycYeUVpWCf8Eur3xMs48wNFsyzlStEF0RkW1f5kapV5LBz8AMFY0N5WKGZaZdkfjy_WHWhCW9laDjLdUuCCJYHt5AFEnAE2apnCykiXj3-uXeW2IcCiEZBkEUlDmRR4McXauIuxezYp7i79jrev9p2YGjnQjtOKuxk5Q.yPXDk4yX-p-4J0EIFMFqn9nFiYeYclVsnW9C_vo2fkY&dib_tag=se&qid=1761523021&s=pc&sr=1-986&xpid=a96m-tz_Kfufs&th=1' },
+			{ nome: 'Core i7 - RX 550     $449', img: 'https://m.media-amazon.com/images/I/71ssI+6V0qL._AC_SL1500_.jpg', link: 'https://www.amazon.ca/AXOII-Desktop-Computer-Processor-Bluetooth/dp/B0FR5JPCT5/ref=sr_1_1033?dib=eyJ2IjoiMSJ9.0EbZJDPNLWtjC_ZnAR6LvtuCHfUFqbSweqUK6TXYN7TlVqnrI_6Z7ckqqMUnRIynyWHWC7HJZS1sKQ3Dvqi162q3eP82wD7vYXOX8HW1eBXPtfQTpwIHj_uHv8I8WCCrFBs6Qp8DQxvDlhOoA35Y1120T6QpuhUfsX17-BmYGyCnUDPihK_DL2JzFhrPGMsyuBl4DPGPPJVhbWHabZjlpg.6GP-7fL_lebwYj2u0-iZD7iojJC5Ch22mPgBAnWMd5Y&dib_tag=se&qid=1761523051&s=pc&sr=1-1033&xpid=a96m-tz_Kfufs&th=1' }
+          ],
+          mediano: [
+		  { nome: 'Core i7 - GTX 1660     $848', img: 'https://m.media-amazon.com/images/I/71AFRVNBeYL._AC_SL1200_.jpg', link: 'https://www.amazon.ca/STGAubron-Computer-Desktop-GeForce-Windows/dp/B0DJ9BYSQQ?ref_=Oct_d_omwf_d_677250011_6&pd_rd_w=os4mC&content-id=amzn1.sym.32cabd8d-d441-4a31-8de8-e1a87830be4f&pf_rd_p=32cabd8d-d441-4a31-8de8-e1a87830be4f&pf_rd_r=CFG82NGP0CTBMNQBXJMT&pd_rd_wg=sJ6Id&pd_rd_r=5e606836-fe33-4fa6-b07f-09a934b7e905&pd_rd_i=B0FDWZVZCB&th=1' },
+		  { nome: 'Core i7 - RTX 3050     $890', img: 'https://m.media-amazon.com/images/I/71GwQ50tM1L._AC_SL1200_.jpg', link: 'https://www.amazon.ca/STGAubron-Desktop-i7-8750H-Keyboard-Streaming/dp/B0DJ9BYSQQ/ref=sr_1_122?dib=eyJ2IjoiMSJ9.iRZyp84txn38iQfgoebn-AyZBKhwaRFxmzz_3nm-GGnt8c1iKnoJoBCPm2uraSUIAxTV_xeZKz-pDueGYI72WtZIRXbMR9pow6xISEpiCQN-Zd_ySONB8bgalR656TGoNt-aszG0g6RHxfymZkOajw.nQ3ai_GeTti4U5B_ipR4uu5A6nT0mejXKjD-MNAlgRQ&dib_tag=se&qid=1761521631&s=pc&sr=1-122&xpid=a96m-tz_Kfufs&th=1' },
+		  { nome: 'Core I7 - GTX 1660 Ti  $814', img: 'https://m.media-amazon.com/images/I/71HUajvncEL._AC_SL1117_.jpg', link: 'https://www.amazon.ca/STGAubron-Gaming-Computer-Desktop-Windows/dp/B0C7R6BM37/ref=sr_1_201?dib=eyJ2IjoiMSJ9.yZPpXPqVaISRu4AB7aghAVAzQfjrpj8n2aiEDJySxZ8jT6zfhXVHNe56ejOo7sTU4xCnc3GJY9oBG7Z8QZrvM0iJy1ns_AGqulW1OEQ_xM5ulZE8xxEtHAtvDkkeGhjjZuIGXXSd3NUTfl5NMLeXgw.WiU8ICVNTyjWKs8vcgNrdw6OmJOpa65RyqTJp0pE7PY&dib_tag=se&qid=1761521668&s=pc&sr=1-201&xpid=a96m-tz_Kfufs&th=1' },
+		  { nome: 'Core i7 - RTX 3050     $875', img: 'https://m.media-amazon.com/images/I/81+vEv0MW1L._AC_SL1500_.jpg', link: 'https://www.amazon.ca/STGAubron-Computer-Desktop-GeForce-Windows/dp/B0F6TMYB57/ref=sr_1_222?dib=eyJ2IjoiMSJ9.v3FIX7lkC__VWO2RutVFzSuFSE7aFdOwDy6qAxFiypvM3Kjs8qzyOZAvkLZAzSrrWKK8t9F3uoRu9oL6xvGFFC8nrpsOlOJQdgWXJHzQzz2xDZE36YMSIoVS5p4hSIVzjbHq46hT6fXdqouEAIBsEw.YKzh4ht0LewkjaKC5WiPOi44q5Ngr4R9JsZT8w753fQ&dib_tag=se&qid=1761521685&s=pc&sr=1-222&xpid=a96m-tz_Kfufs&th=1' },
+		  { nome: 'Core i7 - RTX 3050     $875', img: 'https://m.media-amazon.com/images/I/718JZAooUXL._AC_SL1200_.jpg', link: 'https://www.amazon.ca/STGAubron-Computer-Desktop-GeForce-Windows/dp/B0F6TMYB57/ref=sr_1_222?dib=eyJ2IjoiMSJ9.v3FIX7lkC__VWO2RutVFzSuFSE7aFdOwDy6qAxFiypvM3Kjs8qzyOZAvkLZAzSrrWKK8t9F3uoRu9oL6xvGFFC8nrpsOlOJQdgWXJHzQzz2xDZE36YMSIoVS5p4hSIVzjbHq46hT6fXdqouEAIBsEw.YKzh4ht0LewkjaKC5WiPOi44q5Ngr4R9JsZT8w753fQ&dib_tag=se&qid=1761521685&s=pc&sr=1-222&xpid=a96m-tz_Kfufs&th=1' },
+		  { nome: 'Ryzen 5 5500 - RTX 3050 $865', img: 'https://m.media-amazon.com/images/I/71PdO8g6CrL._AC_SL1200_.jpg', link: 'https://www.amazon.ca/STGAubron-Computer-Desktop-GeForce-Windows/dp/B0F4L49VC2/ref=sr_1_272?dib=eyJ2IjoiMSJ9.GX8ckBUKqgXmoekYfm5bdEri0RkEEOMNHcGKX0azSJ1TfAsJUv3Po2M8cgrpfxAmb_dTRoOCN4xhMs7H6Sy4WvR_aKw81p8hBcg7GdxNsr1ZTd_yEmvrjZh6ANTH81urqaZR9kKzSr-eZG4_9kFw_JmxtaDl3rmPL-eA5qEkKKkt8u-X0YDo_74tCuyUrIHLgce2B-YKtMKh28bymcFBlw.Ff2eoTkq-wMug-2332TOVrl4wN1wE9JojqlqpjRdTGI&dib_tag=se&qid=1761521719&s=pc&sr=1-272&xpid=a96m-tz_Kfufs&th=1   ' },
+		  { nome: 'Core i7 - GTX 1660 Super $807', img: 'https://m.media-amazon.com/images/I/71nME6lfC4L._AC_SL1500_.jpg', link: 'https://www.amazon.ca/STGAubron-Desktop-i7-8750H-Keyboard-Streaming/dp/B0DJ9F6G37/ref=sr_1_277?dib=eyJ2IjoiMSJ9.GX8ckBUKqgXmoekYfm5bdEri0RkEEOMNHcGKX0azSJ1TfAsJUv3Po2M8cgrpfxAmb_dTRoOCN4xhMs7H6Sy4WvR_aKw81p8hBcg7GdxNsr1ZTd_yEmvrjZh6ANTH81urqaZR9kKzSr-eZG4_9kFw_JmxtaDl3rmPL-eA5qEkKKkt8u-X0YDo_74tCuyUrIHLgce2B-YKtMKh28bymcFBlw.Ff2eoTkq-wMug-2332TOVrl4wN1wE9JojqlqpjRdTGI&dib_tag=se&qid=1761521719&s=pc&sr=1-277&xpid=a96m-tz_Kfufs&th=1' },
+		  { nome: 'Core i7 - RX 5700      $821', img: 'https://m.media-amazon.com/images/I/71nME6lfC4L._AC_SL1500_.jpg', link: 'https://www.amazon.ca/STGAubron-Desktop-i7-8750H-Keyboard-Streaming/dp/B0DJ9CYMLQ/ref=sr_1_344?dib=eyJ2IjoiMSJ9.zxx1JdkmcOU9MnpVWL0M3XAOV2Ury22xiz_dtxIKGAV5m-z5h47UfcsQ3ySa12nzQMeKB0h3c0wE6m98eqo4LJRHWlFYSbF9dK6twpdOdxTroS_LZ2odGp57_7ix5Jnig-batoZoxF1kIZzOmV2cPOsUTyj9PEJ4NvAKUbIOK2dFO-ljVYuutwA-RPUY7v6X0cYh-gdpGfW6wUhccT0wvw.zxotyyB4LyC4Jn4OwUJU5kYzedmFtTQZzPQ_a16LqgA&dib_tag=se&qid=1761521775&s=pc&sr=1-344&xpid=a96m-tz_Kfufs&th=1' },
+		  { nome: 'Core i7 - GTX 1660 Super $848', img: 'https://m.media-amazon.com/images/I/71AFRVNBeYL._AC_SL1200_.jpg', link: 'https://www.amazon.ca/STGAubron-Gaming-Radeon-i5-9400F-Keyboard/dp/B0DJ9BYSQQ/ref=sr_1_491?dib=eyJ2IjoiMSJ9.qA6z2yeWzH0EhHyvUDr1twKuMAqOTeh9rlU9WU1vv4rNY-kQh-SOjTKONwKENS1b1Vb5nA2MOQFUSsqjnfHRFzZvW0HT3s_sSptxjy9HsxHxt7yFAZ2BL5WWGGUeK4udB0s_qhnTv-jtdHdqmPPa2a8DNIzXI1RoGRvme8CFJgtFreNS3_y2rgPqRI_4w-4biX7qDHF78WnY6lkKe27kUg.Q-alcI3Tv-Z26DkUpPaBE_rPfyiCqsje_BtjHbJk3B8&dib_tag=se&qid=1761521894&s=pc&sr=1-491&xpid=a96m-tz_Kfufs&th=1    ' },
+		  { nome: 'Ryzen 5 5600GT -       $776', img: 'https://m.media-amazon.com/images/I/81+OikqnQ3L._AC_SL1500_.jpg', link: 'https://www.amazon.ca/YAWYORE-Desktop-Computer-3200MHz-Prebuilt/dp/B0DT5V1HYV/ref=sr_1_751?dib=eyJ2IjoiMSJ9.XaUQnAM9mJhTSjaavP_86C7pUC016Dt9VwnihPCfUlpE_ekJJPeBe81EFrkXHawMQ_Xc02NUzaRuvmd8wIzDE8-18kyryIVaBHdC1sTyLZL-suGBZqQ0ZKYp4yD2pcBC_fpRl9hdm4lboP0GTvW6hQ.U2mHL3ethMie7FbAOp_OvNyJZZhPTG0XXEBUCpvDQas&dib_tag=se&qid=1761522846&s=pc&sr=1-751&xpid=a96m-tz_Kfufs&th=1' },
+		  { nome: 'Core i7 - RX590        $738', img: 'https://m.media-amazon.com/images/I/71sih4cMLvL._AC_SL1500_.jpg', link: 'https://www.amazon.ca/Prebuilt-Computer-Operating-Frequency-Graphics/dp/B0FN7L4P33/ref=sr_1_878?dib=eyJ2IjoiMSJ9.lIHwCMS0al-lRZgZxAtbguky3Wo7RGRoy5wXkfs0naQkL42drERWs7ZPNBM8RSwASKN8l2h4LSoAE2Ub2XpoSIY7Go9oSHikFxMhWu1we2HxE1wz7JiHjFxXg9A2PPVFzBEph3qXv9MPjLf_kCUiq64fJl6YEV3sYWwQ69Ugk9OAUTC0A5LihMAsn1uK8mBmveRARtqTc_N73ktSJO4W-Q.2-_x6_9LUCp-paEJCp2usM5IKS1Q9AzFOGxowGmB0Dg&dib_tag=se&qid=1761522936&s=pc&sr=1-878&xpid=a96m-tz_Kfufs' },
+		  { nome: 'Core i3 - GTX 1650     $907', img: 'https://m.media-amazon.com/images/I/61MbmHJK+zL._AC_SL1000_.jpg', link: 'https://www.amazon.ca/Skytech-Nebula-Gaming-PC-Desktop/dp/B0C3L98Q6T/ref=sr_1_314?dib=eyJ2IjoiMSJ9.Kp-AIDY4T6UGvfK3Dau_J75E6FT9Ca9U5P6zUQWl_TNvfvlIWs_HU7o7mPMzDEpErWaSAS9BuY_c3QmBIOvO_rBY2WeM3JE-kVBDQg_Bhw1s5FmopvhMLN1b1LbWqTYR9Oqmd6Kr_d-4bnD-LsNG3eHGjfCV_FQJP7cIV4hHkVtGBOpwUqTppkiuFkxcrelngmCzIkuat9iM7g8XRUhjag.6mGMEq3hzXWZypmrdOu22IwdqqkvoibqNVvPw8GwxTg&dib_tag=se&qid=1761521754&s=pc&sr=1-314&xpid=a96m-tz_Kfufs&th=1' },
+		  { nome: 'Core i5 - RTX 3050     $985', img: 'https://m.media-amazon.com/images/I/71F+j+OUkFL._AC_SL1200_.jpg', link: 'https://www.amazon.ca/STGAubron-Desktop-i5-13400F-GeForce-Windows/dp/B0F3J7FLWR/ref=sr_1_337?dib=eyJ2IjoiMSJ9.zxx1JdkmcOU9MnpVWL0M3XAOV2Ury22xiz_dtxIKGAV5m-z5h47UfcsQ3ySa12nzQMeKB0h3c0wE6m98eqo4LJRHWlFYSbF9dK6twpdOdxTroS_LZ2odGp57_7ix5Jnig-batoZoxF1kIZzOmV2cPOsUTyj9PEJ4NvAKUbIOK2dFO-ljVYuutwA-RPUY7v6X0cYh-gdpGfW6wUhccT0wvw.zxotyyB4LyC4Jn4OwUJU5kYzedmFtTQZzPQ_a16LqgA&dib_tag=se&qid=1761521775&s=pc&sr=1-337&xpid=a96m-tz_Kfufs&th=1' },
+          { nome: 'Core i7 - GTX 1650     $909', img: 'https://m.media-amazon.com/images/I/81rsRXi+grL._AC_SL1500_.jpg', link: 'https://www.amazon.ca/Gaming-Desktop-Computer-Curved-Monitor/dp/B0FT5NHTF6/ref=sr_1_1113?dib=eyJ2IjoiMSJ9.rBMVnPdZ8s7-vCR4EMaEeFlwaLJQdOeGqNx1i72Jx9nKOusBCQ_9ftR6BPMUAj6FSigFHgb40znf0O_HNxnN5v_wKjMIeQmRVGHaq46X3QuLaWoFHuKQZX_DU8uHVlTGuVu_Qp3BCQBCWLmGofe2wA.v273AB6faxff76Rq2Nv9g4U5EDGeCmB69OzAL62VZe8&dib_tag=se&qid=1761523093&s=pc&sr=1-1113&xpid=a96m-tz_Kfufs&th=1' }
+		  ],                                                                                                                                                           
+          bonito: [
+            { nome: 'Ryzen 7 5700 - RX 9060', img: 'https://m.media-amazon.com/images/I/71niM8ydWFL._AC_SL1280_.jpg', link: 'https://www.amazon.ca/Skytech-Azure-Gaming-Desktop-4-6GHz/dp/B0FDQRNVHN/ref=sr_1_341?dib=eyJ2IjoiMSJ9.99ILJtAFAMcN9PJMfR4gi-zKwrxuZrfKlgTb2kGrWCEW4ZlbMNN8xSmbWg8xjC-UvrEsOM3IQq_ZW-8EmTCC4QTXmoidRbzAzzfA-WO46ayI0vZNZZJGrIsTt6kKv2yk0P8BgnVbDPILETbn2kRLSw.cqiG3kp7uMBpcsm_8tOD3voqJCaEOKFpCFwGyg7f_Mc&dib_tag=se&qid=1761521775&s=pc&sr=1-341&xpid=a96m-tz_Kfufs' },
+			{ nome: 'Ryzen 7 9800X3D - RTX 5080', img: 'https://m.media-amazon.com/images/I/71Hh24R0vgL._AC_SL1200_.jpg', link: 'https://www.amazon.ca/Skytech-Gaming-Desktop-9800X3D-NVIDIA/dp/B0F6MXW1XK/ref=sr_1_364?dib=eyJ2IjoiMSJ9.QL3C8urFNIfSnvp0kJeF9_34_eIoR3kWV_zJrICtpiJ5TleAPhkA9E6bnpoeWNxarQlgAALtCa_3iuhQxUWc1PlrPKAEt_A3n1cx18uAkByxgJqa7Ze7Au5KGcGBFRs_2Ryn-AxooyI_tEC_cj7Ii2z9Qb0Jn8wnsG5zhxrBWTZXMvl8prguc2pBWJ8rAgjH2sl4g-fclDovdMWj4pM5qw.biwwdWmrYCCOGl-Se4fxVa8jokpPjL665txquAso2vI&dib_tag=se&qid=1761521790&s=pc&sr=1-364&xpid=a96m-tz_Kfufs&th=1' },
+			{ nome: 'Ryzen 7 7700X - RTX 5070', img: 'https://m.media-amazon.com/images/I/71HZV23LwOL._AC_SL1500_.jpg', link: 'https://www.amazon.ca/Skytech-Rampage-Gaming-Desktop-5-4GHz/dp/B0DTYH96H8/ref=sr_1_368?dib=eyJ2IjoiMSJ9.QL3C8urFNIfSnvp0kJeF9_34_eIoR3kWV_zJrICtpiJ5TleAPhkA9E6bnpoeWNxarQlgAALtCa_3iuhQxUWc1PlrPKAEt_A3n1cx18uAkByxgJqa7Ze7Au5KGcGBFRs_2Ryn-AxooyI_tEC_cj7Ii2z9Qb0Jn8wnsG5zhxrBWTZXMvl8prguc2pBWJ8rAgjH2sl4g-fclDovdMWj4pM5qw.biwwdWmrYCCOGl-Se4fxVa8jokpPjL665txquAso2vI&dib_tag=se&qid=1761521790&s=pc&sr=1-368&xpid=a96m-tz_Kfufs&th=1' },
+			{ nome: 'Ryzen 5 5600G - RTX 4060', img: 'https://m.media-amazon.com/images/I/71Nu0prSNtL._AC_SL1280_.jpg', link: 'https://www.amazon.ca/HAJAAN-SuperX-GeForce-Windows-Bluetooth/dp/B0CVSJGXGC/ref=sr_1_459?dib=eyJ2IjoiMSJ9.uoDCqyL80ne7Mgf62e0sfP9gZS3dOJFa6r5DP6u1qf2PigncpjSsL4xbZUl8ECoeInqQnRoA8yER63EVvRh6A0bJZEU2M9ZX-mKCAW94Rb79xnmYD_WzaW8VaR1AtjJTMR6TjjxdAzv48AH4zmcSqw.PvAOlcdTRfjLliSR20YFaCTzGFLt8H6tT4zkUhKJkdE&dib_tag=se&qid=1761521870&s=pc&sr=1-459&xpid=a96m-tz_Kfufs&th=1' },
+			{ nome: 'Core i7-10700KF - RTX 2060', img: 'https://m.media-amazon.com/images/I/81+pS4f7sDL._AC_SL1500_.jpg', link: 'https://www.amazon.ca/STGAubron-Desktop-i7-10700KF-GeForce-Keyboard/dp/B0CJYBSR9G/ref=sr_1_466?dib=eyJ2IjoiMSJ9.uoDCqyL80ne7Mgf62e0sfP9gZS3dOJFa6r5DP6u1qf2PigncpjSsL4xbZUl8ECoeInqQnRoA8yER63EVvRh6A0bJZEU2M9ZX-mKCAW94Rb79xnmYD_WzaW8VaR1AtjJTMR6TjjxdAzv48AH4zmcSqw.PvAOlcdTRfjLliSR20YFaCTzGFLt8H6tT4zkUhKJkdE&dib_tag=se&qid=1761521870&s=pc&sr=1-466&xpid=a96m-tz_Kfufs&th=1' },
+			{ nome: 'Ryzen 7 9800X3D - RTX 5080', img: 'https://m.media-amazon.com/images/I/619jPDm9gdL._AC_SL1000_.jpg', link: 'https://www.amazon.ca/Skytech-Legacy-Gaming-Desktop-9800X3D/dp/B0DVSGQ34P/ref=sr_1_484?dib=eyJ2IjoiMSJ9.AU_5vEHIroD4yYCY93J40cp7Lp7yQrdZKVP1Y3iXjzsNAN9WijmLkMwYlvV5qCrymG8KLsW5Grs7xgu_gA1qWfT_mUWOeKyK-bhaGo2NphlAhGpqzRxchK7VGx_-RAZ0yP8AyDkk5Nf0jJKrRNBu8Q.N6WfvAgJ_bWidKYMQuxzp_a6lzNwn-oH-yDDHprDB94&dib_tag=se&qid=1761521894&s=pc&sr=1-484&xpid=a96m-tz_Kfufs&th=1' },
+			{ nome: 'CORE i7 - RTX 5070', img: 'https://m.media-amazon.com/images/I/71PWDBLcubL._AC_SL1200_.jpg', link: 'https://www.amazon.ca/Skytech-Gaming-Desktop-14700F-5-3GHz/dp/B0F93T446C/ref=sr_1_489?dib=eyJ2IjoiMSJ9.AU_5vEHIroD4yYCY93J40cp7Lp7yQrdZKVP1Y3iXjzsNAN9WijmLkMwYlvV5qCrymG8KLsW5Grs7xgu_gA1qWfT_mUWOeKyK-bhaGo2NphlAhGpqzRxchK7VGx_-RAZ0yP8AyDkk5Nf0jJKrRNBu8Q.N6WfvAgJ_bWidKYMQuxzp_a6lzNwn-oH-yDDHprDB94&dib_tag=se&qid=1761521894&s=pc&sr=1-489&xpid=a96m-tz_Kfufs' },
+			{ nome: 'Ryzen 7 9800X3D - RTX 5070 Ti', img: 'https://m.media-amazon.com/images/I/81TK7j75FEL._AC_SL1500_.jpg', link: 'https://www.amazon.ca/Skytech-Gaming-Desktop-9800X3D-NVIDIA/dp/B0DXX2T9JC/ref=sr_1_508?dib=eyJ2IjoiMSJ9.Wgus8WpixwbIV09k7zr4ZnQu7wxYvhrA0gDfzQSfJDoPMDLYYxwG5mJvLhtkYLx6aDWEun2MAtMtkeZ_lLfplsKnjGnJV5YAMeINga_BetZVpVPU73EaQYWPMgvmjNlz6s0rz15F9dVsDXnyJzQ6-g.kXozDe3Z7174LRIynfPJ8jHEQjYVLfRd_flDZlKL07s&dib_tag=se&qid=1761521927&s=pc&sr=1-508&xpid=a96m-tz_Kfufs&th=1' },
+			{ nome: 'Core i7 - GTX 1650', img: 'https://m.media-amazon.com/images/I/71vQVJy8JZL._AC_SL1500_.jpg', link: 'https://www.amazon.ca/Gaming-Desktop-Computer-Tower-Monitor/dp/B0C6YHT25F/ref=sr_1_470?dib=eyJ2IjoiMSJ9.HgEgkqgsFmCsHhc3eMmjdl0EatWPI4EL8Tmi2sPCT7Gv5Gq6QOnaX2-u1ThIJLgipiYASN8p86ib6Pyif9VxJWnZFeCMIqOfb0ybnoBYbjffshTaXDeTHMJp8bo7sCTBC6lg2WePF47pl0RNXNT6u0SP7n8E9cAC6G4TYUQCr4W38uAOhVl2JxTw64yp2VuIsF6zCAGHN6hzHAI2BCc9zw.8S5kB9-v3GmvRwlULIAYD38HbIsMa76F9YgG-3zDdF4&dib_tag=se&qid=1761521870&s=pc&sr=1-470&xpid=a96m-tz_Kfufs&th=1' }
+          ]
+        },
+        perifericos: {
+          rapido: [
+            { nome: 'Wired Gaming Keyboard and Mouse Headset', img: 'https://m.media-amazon.com/images/I/81m7TJHq4US._AC_SL1500_.jpg', link: 'https://www.amazon.ca/Gaming-Keyboard-Headset-Rainbow-Backlit/dp/B096LYYXWS/ref=sr_1_1?dib=eyJ2IjoiMSJ9.FSuz2eGNV2fcRbxwTHIaA34gEs1jm-0xeNhs_ngQM4n6lORx4GUhLXHvbLoH7zmu5JwyMUyg5WkaPLeCaiaF97cyA14hTxelc2pz4UlJZCVb54LuH9nVnP6HdEZg6xpU9nZkTN9BE5T-tu9gzuFCccHgN5E4JJ370Fa3C3_QxkQvpH2uEjGJuiQ674bIL5LqsKT728YMA3iRpR6vgDxLCEGmCeJJRZFkDkK7NogWb1CIHiOMYMlxWJm-Ife9vfZIIkKdfjbqa3jygu-yySOHmKDR1ee7IVLYpmjfuf-Iitc.vCqE6LWH6_1MdA1gZyVdiWrnBl8VfqFfSIhSMUEG7xI&dib_tag=se&keywords=kit%2Bkeyboard%2Band%2Bmouse%2Bwith%2Bheadset&qid=1761547060&s=pc&sr=1-1-catcorr&th=1' },
+			{ nome: 'Gaming Keyboard and Mouse Combo', img: 'https://m.media-amazon.com/images/I/71r9YDtkoQL._AC_SL1500_.jpg', link: 'https://www.amazon.ca/FANTECH-Keyboard-Headset-Headphone-Backlight/dp/B0CGRHP86H/ref=sr_1_2?dib=eyJ2IjoiMSJ9.FSuz2eGNV2fcRbxwTHIaA34gEs1jm-0xeNhs_ngQM4n6lORx4GUhLXHvbLoH7zmu5JwyMUyg5WkaPLeCaiaF97cyA14hTxelc2pz4UlJZCVb54LuH9nVnP6HdEZg6xpU9nZkTN9BE5T-tu9gzuFCccHgN5E4JJ370Fa3C3_QxkQvpH2uEjGJuiQ674bIL5LqsKT728YMA3iRpR6vgDxLCEGmCeJJRZFkDkK7NogWb1CIHiOMYMlxWJm-Ife9vfZIIkKdfjbqa3jygu-yySOHmKDR1ee7IVLYpmjfuf-Iitc.vCqE6LWH6_1MdA1gZyVdiWrnBl8VfqFfSIhSMUEG7xI&dib_tag=se&keywords=kit%2Bkeyboard%2Band%2Bmouse%2Bwith%2Bheadset&qid=1761547060&s=pc&sr=1-2-catcorr&th=1' },
+			{ nome: 'Keyboard and Mouse,Headphones,Mouse', img: 'https://m.media-amazon.com/images/I/81oWdEdBACL._AC_SL1500_.jpg', link: 'https://www.amazon.ca/DGG-Gaming-Keyboard-Headphones-pad%EF%BC%8CAll/dp/B0B7W9TCP6/ref=sr_1_3?dib=eyJ2IjoiMSJ9.FSuz2eGNV2fcRbxwTHIaA34gEs1jm-0xeNhs_ngQM4n6lORx4GUhLXHvbLoH7zmu5JwyMUyg5WkaPLeCaiaF97cyA14hTxelc2pz4UlJZCVb54LuH9nVnP6HdEZg6xpU9nZkTN9BE5T-tu9gzuFCccHgN5E4JJ370Fa3C3_QxkQvpH2uEjGJuiQ674bIL5LqsKT728YMA3iRpR6vgDxLCEGmCeJJRZFkDkK7NogWb1CIHiOMYMlxWJm-Ife9vfZIIkKdfjbqa3jygu-yySOHmKDR1ee7IVLYpmjfuf-Iitc.vCqE6LWH6_1MdA1gZyVdiWrnBl8VfqFfSIhSMUEG7xI&dib_tag=se&keywords=kit+keyboard+and+mouse+with+headset&qid=1761547060&s=pc&sr=1-3-catcorr' },
+			{ nome: 'RGB Keyboard and Mouse RK105, Wired', img: 'https://m.media-amazon.com/images/I/71WdQbOO2WL._AC_SL1500_.jpg', link: 'https://www.amazon.ca/Rii-Backlit-Keyboard-Optical-Business/dp/B081YXTSXG/ref=sr_1_20?dib=eyJ2IjoiMSJ9.FSuz2eGNV2fcRbxwTHIaA34gEs1jm-0xeNhs_ngQM4n6lORx4GUhLXHvbLoH7zmu5JwyMUyg5WkaPLeCaiaF97cyA14hTxelc2pz4UlJZCVb54LuH9nVnP6HdEZg6xpU9nZkTN9BE5T-tu9gzuFCccHgN5E4JJ370Fa3C3_QxkQvpH2uEjGJuiQ674bIL5LqsKT728YMA3iRpR6vgDxLCEGmCeJJRZFkDkK7NogWb1CIHiOMYMlxWJm-Ife9vfZIIkKdfjbqa3jygu-yySOHmKDR1ee7IVLYpmjfuf-Iitc.vCqE6LWH6_1MdA1gZyVdiWrnBl8VfqFfSIhSMUEG7xI&dib_tag=se&keywords=kit+keyboard+and+mouse+with+headset&qid=1761547060&s=pc&sr=1-20-catcorr' },
+			{ nome: 'RedThunder K10 Wired Gaming Keyboard and Mouse Combo', img: 'https://m.media-amazon.com/images/I/81mQXSeQEFL._AC_SL1500_.jpg', link: 'https://www.amazon.ca/dp/B09NB9YM4D/ref=sspa_dk_rhf_search_pt_sub_4/?_encoding=UTF8&ie=UTF8&sp_csd=d2lkZ2V0TmFtZT1zcF9yaGZfc2VhcmNoX3BlcnNvbmFsaXplZA%3D%3D&pd_rd_w=28TqY&content-id=amzn1.sym.0f99bdad-eb79-4af9-af0a-e84349c74796&pf_rd_p=0f99bdad-eb79-4af9-af0a-e84349c74796&pf_rd_r=KCX3XQAZ7X9G1488H7FF&pd_rd_wg=9nuG5&pd_rd_r=d9d67ef4-ba09-453f-b684-6d6a0a93dc21&ref_=sspa_dk_rhf_search_pt_sub&th=1' },
+			{ nome: 'Keyboard Mouse Headset and Mousepad Bundle', img: 'https://m.media-amazon.com/images/I/71RObju0v8L._AC_SL1500_.jpg', link: 'https://www.amazon.ca/CHONCHOW-Keyboard-Headset-Rainbow-Backlit/dp/B08HYJLXJZ/ref=sr_1_10?dib=eyJ2IjoiMSJ9.FSuz2eGNV2fcRbxwTHIaA34gEs1jm-0xeNhs_ngQM4n6lORx4GUhLXHvbLoH7zmu5JwyMUyg5WkaPLeCaiaF97cyA14hTxelc2pz4UlJZCVb54LuH9nVnP6HdEZg6xpU9nZkTN9BE5T-tu9gzuFCccHgN5E4JJ370Fa3C3_QxkQvpH2uEjGJuiQ674bIL5LqsKT728YMA3iRpR6vgDxLCEGmCeJJRZFkDkK7NogWb1CIHiOMYMlxWJm-Ife9vfZIIkKdfjbqa3jygu-yySOHmKDR1ee7IVLYpmjfuf-Iitc.vCqE6LWH6_1MdA1gZyVdiWrnBl8VfqFfSIhSMUEG7xI&dib_tag=se&keywords=kit+keyboard+and+mouse+with+headset&qid=1761547060&s=pc&sr=1-10-catcorr' },
+			{ nome: 'Gaming Keyboard and Mouse Combo', img: 'https://m.media-amazon.com/images/I/61jhUE5hjIL._AC_SL1500_.jpg', link: 'https://www.amazon.ca/FANTECH-Keyboard-Rainbow-Backlit-Headphone/dp/B0D8SXZSFH/ref=sr_1_6?dib=eyJ2IjoiMSJ9.FSuz2eGNV2fcRbxwTHIaA34gEs1jm-0xeNhs_ngQM4n6lORx4GUhLXHvbLoH7zmu5JwyMUyg5WkaPLeCaiaF97cyA14hTxelc2pz4UlJZCVb54LuH9nVnP6HdEZg6xpU9nZkTN9BE5T-tu9gzuFCccHgN5E4JJ370Fa3C3_QxkQvpH2uEjGJuiQ674bIL5LqsKT728YMA3iRpR6vgDxLCEGmCeJJRZFkDkK7NogWb1CIHiOMYMlxWJm-Ife9vfZIIkKdfjbqa3jygu-yySOHmKDR1ee7IVLYpmjfuf-Iitc.vCqE6LWH6_1MdA1gZyVdiWrnBl8VfqFfSIhSMUEG7xI&dib_tag=se&keywords=kit%2Bkeyboard%2Band%2Bmouse%2Bwith%2Bheadset&qid=1761547060&s=pc&sr=1-6-catcorr&th=1' },
+			{ nome: 'Rainbow Backlit Gaming Keyboard and Mouse Combo', img: 'https://m.media-amazon.com/images/I/61JJTBfnWaL._AC_SL1000_.jpg', link: 'https://www.amazon.ca/Xtrike-Me-Rainbow-Keyboard-Membrane/dp/B0884VWST4/ref=sr_1_57?dib=eyJ2IjoiMSJ9.f8WBG5lSYxXD78jMInA9aChvYcRIPWpaPjndeI0nkDv0ElG4sBtlRK8Zujqg-bUT11QTKK-jmgzPq7eFbfsSqD10Ump6TcPwyFtu_OabmjzbXDoXUeMsBekvwmKRrxcpH6kKAbyEXYX3B6dsbMHw3xdRKHpP_MRbGr1hxZsC0JFSCOe9o9pNvcCKR8uoUPn0_icJgOLh1TaXYp_dK0ZzRdygBKJI3ajLY2bU_j1ZrdS_Y359AKNMuahOlHjQpqWSoX_UzsABraKh6rVrNCqhXYiUHp2XtC-WsN1nboDYStE.QZPpJsC7e1rsam_xau4qe5R3oyu3vNmn3uMHnKwz0bk&dib_tag=se&keywords=kit+keyboard+and+mouse&qid=1761547397&s=pc&sr=1-57&xpid=u536aXkhw_j4U' },
+			{ nome: 'Keyboard and Mouse 104 Key Ergonomic Cute Desktop', img: 'https://m.media-amazon.com/images/I/71-AlRqjE7L._AC_SL1500_.jpg', link: 'https://www.amazon.ca/Keyboard-Ergonomic-Desktop-Suitable-Office/dp/B0CG1CZ8V7/ref=sr_1_189?dib=eyJ2IjoiMSJ9.cE5HvpyXNC1gYwNrQn03wDUXZlSx1Fr4PUodL-OGmzbyIYFgBclxRi4BxNCPcbCmsmRFnwgG3CyfnqLkmGXbbVtnz46n6N1iy77l223C3SsyUDtHmviPXSHIedQ5miRgqyYr-hucsmicYGhR3ZDQMl4xij5EshrV74SOg4XS7weL3hjH0gKNrk9Lr1OyUlNhrL-DuvKZQ4zUkPdJn0mmiIvJuvOh9q0Bvmw9h3Lyrtl9chNjFx7cO8tm6rWjGTU2VGxCUJybUGWI3bnvFpfscg5-1ZVLAFCn4w50Ozd5p50.u-9HGtyPO3_3KXglLkmpYCpTqHq9LZjQqc0W88hZlRs&dib_tag=se&keywords=kit+keyboard+and+mouse&qid=1761547521&s=pc&sr=1-189&xpid=u536aXkhw_j4U' },
+			{ nome: 'Wireless Keyboard and Mouse Combo', img: 'https://m.media-amazon.com/images/I/71Fm2wYXCuL._AC_SL1500_.jpg', link: 'https://www.amazon.ca/Wireless-Keyboard-Ergonomic-Keyboards-Rechargeable/dp/B0CBV3BS4W/ref=sr_1_192_sspa?dib=eyJ2IjoiMSJ9.cE5HvpyXNC1gYwNrQn03wDUXZlSx1Fr4PUodL-OGmzbyIYFgBclxRi4BxNCPcbCmsmRFnwgG3CyfnqLkmGXbbVtnz46n6N1iy77l223C3SsyUDtHmviPXSHIedQ5miRgqyYr-hucsmicYGhR3ZDQMl4xij5EshrV74SOg4XS7weL3hjH0gKNrk9Lr1OyUlNhrL-DuvKZQ4zUkPdJn0mmiIvJuvOh9q0Bvmw9h3Lyrtl9chNjFx7cO8tm6rWjGTU2VGxCUJybUGWI3bnvFpfscg5-1ZVLAFCn4w50Ozd5p50.u-9HGtyPO3_3KXglLkmpYCpTqHq9LZjQqc0W88hZlRs&dib_tag=se&keywords=kit%2Bkeyboard%2Band%2Bmouse&qid=1761547521&s=pc&sr=1-192-spons&xpid=u536aXkhw_j4U&sp_csd=d2lkZ2V0TmFtZT1zcF9idGY&th=1' }
+          ],
+          mediano: [
+            { nome: 'Performance Gaming Keyboard and Mouse Combo with Headset and Mouse Pad', img: 'https://m.media-amazon.com/images/I/61V3lvYf5WL._AC_SL1500_.jpg', link: 'https://www.amazon.ca/X9-Performance-Gaming-Bundle-Everything/dp/B08TGJF217/ref=sr_1_5?dib=eyJ2IjoiMSJ9.FSuz2eGNV2fcRbxwTHIaA34gEs1jm-0xeNhs_ngQM4n6lORx4GUhLXHvbLoH7zmu5JwyMUyg5WkaPLeCaiaF97cyA14hTxelc2pz4UlJZCVb54LuH9nVnP6HdEZg6xpU9nZkTN9BE5T-tu9gzuFCccHgN5E4JJ370Fa3C3_QxkQvpH2uEjGJuiQ674bIL5LqsKT728YMA3iRpR6vgDxLCEGmCeJJRZFkDkK7NogWb1CIHiOMYMlxWJm-Ife9vfZIIkKdfjbqa3jygu-yySOHmKDR1ee7IVLYpmjfuf-Iitc.vCqE6LWH6_1MdA1gZyVdiWrnBl8VfqFfSIhSMUEG7xI&dib_tag=se&keywords=kit+keyboard+and+mouse+with+headset&qid=1761547060&s=pc&sr=1-5-catcorr' },
+            { nome: 'Monitor, FHD 1080P VA Desktop Display, 100HZ', img: 'https://m.media-amazon.com/images/I/81aYyAO8fAL._AC_SL1500_.jpg', link: 'https://www.amazon.ca/KOORUI-Business-Computer-Monitor-Desktop/dp/B09FP4H99P/ref=sr_1_2_sspa?dib=eyJ2IjoiMSJ9.ruPwZKqWhZeX7kbn5vOBa3i8AzUJ7HxchzvkPfbTDNFZKl2BnLF26pvoSWAQ-VPTND-AV-iB5RE84JjA_OhT7nYkoPvMMW4gAuOAZlpQX9XdYecpBS55kv8BYklN3CNLprxT3HpN7HzvJPEH2Rj9qS_sXEIMlAW3kRwSlTs-W8M370mTEtc_po-ZMBPIvX2BNkU3eAnPhIH8jlGdM_2oEz61Gz1_M6E11dPw8AEKFX-USwigpmMVUPqdg8irNF8plLQ_PrBgEBS_6zTj--QfayqOcM5qn0ggNL-TiK0PGNw.wYyEf17kGz2xhw6KUGm4DYRYHSh-jpyGhG2jWp07u7w&dib_tag=se&keywords=display&qid=1761547290&s=pc&sr=1-2-spons&sp_csd=d2lkZ2V0TmFtZT1zcF9hdGY&th=1' },
+			{ nome: '34 inch ultrawide Curved Gaming Monitor', img: 'https://m.media-amazon.com/images/I/71b5vCzLaSL._AC_SL1500_.jpg', link: 'https://www.amazon.ca/Gawfolk-ultrawide-3440x1440-Technology-Compatible/dp/B0DYH4VH1Q/ref=sr_1_32_sspa?dib=eyJ2IjoiMSJ9.ruPwZKqWhZeX7kbn5vOBa3i8AzUJ7HxchzvkPfbTDNFZKl2BnLF26pvoSWAQ-VPTND-AV-iB5RE84JjA_OhT7nYkoPvMMW4gAuOAZlpQX9XdYecpBS55kv8BYklN3CNLprxT3HpN7HzvJPEH2Rj9qS_sXEIMlAW3kRwSlTs-W8M370mTEtc_po-ZMBPIvX2BNkU3eAnPhIH8jlGdM_2oEz61Gz1_M6E11dPw8AEKFX-USwigpmMVUPqdg8irNF8plLQ_PrBgEBS_6zTj--QfayqOcM5qn0ggNL-TiK0PGNw.wYyEf17kGz2xhw6KUGm4DYRYHSh-jpyGhG2jWp07u7w&dib_tag=se&keywords=display&qid=1761547290&s=pc&sr=1-32-spons&sp_csd=d2lkZ2V0TmFtZT1zcF9idGY&th=1' },
+			{ nome: 'Wireless Keyboard and Mouse Combo', img: 'https://m.media-amazon.com/images/I/71wSCc0G0cL._AC_SL1500_.jpg', link: 'https://www.amazon.ca/SABLUTE-Wireless-Keyboard-Rechargeable-Ergonomic/dp/B0FKTFR3Q6/ref=sr_1_68?dib=eyJ2IjoiMSJ9.f8WBG5lSYxXD78jMInA9aChvYcRIPWpaPjndeI0nkDv0ElG4sBtlRK8Zujqg-bUT11QTKK-jmgzPq7eFbfsSqD10Ump6TcPwyFtu_OabmjzbXDoXUeMsBekvwmKRrxcpH6kKAbyEXYX3B6dsbMHw3xdRKHpP_MRbGr1hxZsC0JFSCOe9o9pNvcCKR8uoUPn0_icJgOLh1TaXYp_dK0ZzRdygBKJI3ajLY2bU_j1ZrdS_Y359AKNMuahOlHjQpqWSoX_UzsABraKh6rVrNCqhXYiUHp2XtC-WsN1nboDYStE.QZPpJsC7e1rsam_xau4qe5R3oyu3vNmn3uMHnKwz0bk&dib_tag=se&keywords=kit+keyboard+and+mouse&qid=1761547397&s=pc&sr=1-68&xpid=u536aXkhw_j4U' },
+			{ nome: 'Wired Keyboard Mouse Combo - Large Print Backlit,', img: 'https://m.media-amazon.com/images/I/71gEqPRrh8L._AC_SL1500_.jpg', link: 'https://www.amazon.ca/SABLUTE-Keyboard-Backlit-Computer-Keyboards/dp/B0CF9TQLH5/ref=sr_1_73_sspa?dib=eyJ2IjoiMSJ9.f8WBG5lSYxXD78jMInA9aChvYcRIPWpaPjndeI0nkDv0ElG4sBtlRK8Zujqg-bUT11QTKK-jmgzPq7eFbfsSqD10Ump6TcPwyFtu_OabmjzbXDoXUeMsBekvwmKRrxcpH6kKAbyEXYX3B6dsbMHw3xdRKHpP_MRbGr1hxZsC0JFSCOe9o9pNvcCKR8uoUPn0_icJgOLh1TaXYp_dK0ZzRdygBKJI3ajLY2bU_j1ZrdS_Y359AKNMuahOlHjQpqWSoX_UzsABraKh6rVrNCqhXYiUHp2XtC-WsN1nboDYStE.QZPpJsC7e1rsam_xau4qe5R3oyu3vNmn3uMHnKwz0bk&dib_tag=se&keywords=kit+keyboard+and+mouse&qid=1761547397&s=pc&sr=1-73-spons&xpid=u536aXkhw_j4U&sp_csd=d2lkZ2V0TmFtZT1zcF9idGY&psc=1' },
+			{ nome: 'Keyboard and Mouse Kit, RGB Rainbow Light Keyboard Mouse Combos', img: 'https://m.media-amazon.com/images/I/61RcYG3KO0L._AC_SL1001_.jpg', link: 'https://www.amazon.ca/Keyboard-Rainbow-Expansion-Desktop-Computer/dp/B0C3GS5BMZ/ref=sr_1_142?dib=eyJ2IjoiMSJ9.V6q38gjuOJOIclDWcvgYueH4Et5gPF1GrpXxkSGlHv78Zkh49TdUp6dqEEINuH5t-SfhUddy-TgQY6b_5gh7IRFltsv_p9yl683LfBEV4mlR3tuHTI8e3jUP2YZhSXGhW-P2Qg5S38uOi9GNreZ4kzzxj18a7pddYCIhWAmB63G1u1lWxmlmnDHQxOhO85r_0ER4tZ7UyGRj1R7WGsr-wqSgMzOfMROYH6ZvXbx7pB5K6vB4KlC4ww_wtu6x0068QOtKd81k6UQ7A1Kn1uPeZJhIDFPVnTRx726DAvxnZY0.GABQrpNGF48Wb3sMrAyJyFdMrczbjyq-BCynT67oVyM&dib_tag=se&keywords=kit+keyboard+and+mouse&qid=1761547480&s=pc&sr=1-142&xpid=u536aXkhw_j4U' },
+			{ nome: 'Gaming Keyboard and Mouse Combo, MageGee K1 RGB LED Backlit Keyboard with Transparent Cover,', img: 'https://m.media-amazon.com/images/I/61C9qC9U+gL._AC_SL1500_.jpg', link: 'https://www.amazon.ca/Gaming-Keyboard-Rainbow-Backlit-Computer/dp/B07W6ZTMWP/ref=sr_1_145_sspa?dib=eyJ2IjoiMSJ9.V6q38gjuOJOIclDWcvgYueH4Et5gPF1GrpXxkSGlHv78Zkh49TdUp6dqEEINuH5t-SfhUddy-TgQY6b_5gh7IRFltsv_p9yl683LfBEV4mlR3tuHTI8e3jUP2YZhSXGhW-P2Qg5S38uOi9GNreZ4kzzxj18a7pddYCIhWAmB63G1u1lWxmlmnDHQxOhO85r_0ER4tZ7UyGRj1R7WGsr-wqSgMzOfMROYH6ZvXbx7pB5K6vB4KlC4ww_wtu6x0068QOtKd81k6UQ7A1Kn1uPeZJhIDFPVnTRx726DAvxnZY0.GABQrpNGF48Wb3sMrAyJyFdMrczbjyq-BCynT67oVyM&dib_tag=se&keywords=kit%2Bkeyboard%2Band%2Bmouse&qid=1761547480&s=pc&sr=1-145-spons&xpid=u536aXkhw_j4U&sp_csd=d2lkZ2V0TmFtZT1zcF9idGY&th=1' },
+			{ nome: 'Ritz Gear RGB Gaming Accessories Kit | 4-in-1 Rainbow LED ', img: 'https://m.media-amazon.com/images/I/81qB8rGgGuS._AC_SL1500_.jpg', link: 'https://www.amazon.ca/Accessories-Backlight-Multimedia-Keyboard-Optical/dp/B098Z9VFYK/ref=sr_1_265?dib=eyJ2IjoiMSJ9.jA4dYDjG1gnX1D8igT0ya8e_jXU_2QwMbm9lVc0cO_srAIT7mc_bmTGpOzzIcmnEafV7q--uOcQAsTbyMBvj3Q._6ydO3NKA1_Ko9IF-0z4ojJeN3CyyuIU8XHjnOdZMgQ&dib_tag=se&keywords=kit%2Bkeyboard%2Band%2Bmouse&qid=1761547593&s=pc&sr=1-265&xpid=u536aXkhw_j4U&th=1' },
+			{ nome: 'keeda Backlit Wired Mechanical Keyboard and Mouse Combo LED Gaming Keyboard Kit, 3200 Dots', img: 'https://m.media-amazon.com/images/I/61XbmT3EDTL._AC_SL1500_.jpg', link: 'https://www.amazon.ca/keeda-Backlit-Mechanical-Keyboard-Computer/dp/B09DKTFSCY/ref=sr_1_281?dib=eyJ2IjoiMSJ9.scfEy9ulvSYECdyG5bQNEWfwPrECkv5arsVkHEAHc-MhyEs-nSZdwA31aW4iuqphY0l-J7bP1EsibFgfczFg8WWjrXwhkr8kWTM0Ni18jUo-YePjjgTtYcKJJ09EyB1dto93gIUv7P84tKE9ZyVzO1P7gVOqrncUUgN64M2oOqDB7hhg0qEOgMpAoOKYofGV4GqrvEEjDvWkiS3ttlyUSgyHbwDdmXilo_oNPCcdFc6nDZRs7HJKMhwFcclN4peh_xdKpN4ljTuJ7l6AsUb0b8aMePTvVA3bQu5wYEkgSmw.HfXCF2xMs1lM0eQEl0db1Z7Ahkxck2CerWAFiD0ZXAE&dib_tag=se&keywords=kit%2Bkeyboard%2Band%2Bmouse&qid=1761547593&s=pc&sr=1-281&xpid=u536aXkhw_j4U&th=1' }
+          ],
+          bonito: [
+            { nome: 'Wireless Gaming Keyboard Mouse and Bluetooth Headset Kit', img: 'https://m.media-amazon.com/images/I/81iqkzSxT3L._AC_SL1500_.jpg', link: 'https://www.amazon.ca/Bluetooth-Rechargeable-Mechanical-Ergonomic-Waterproof/dp/B08CD9THXG/ref=sr_1_4?dib=eyJ2IjoiMSJ9.FSuz2eGNV2fcRbxwTHIaA34gEs1jm-0xeNhs_ngQM4n6lORx4GUhLXHvbLoH7zmu5JwyMUyg5WkaPLeCaiaF97cyA14hTxelc2pz4UlJZCVb54LuH9nVnP6HdEZg6xpU9nZkTN9BE5T-tu9gzuFCccHgN5E4JJ370Fa3C3_QxkQvpH2uEjGJuiQ674bIL5LqsKT728YMA3iRpR6vgDxLCEGmCeJJRZFkDkK7NogWb1CIHiOMYMlxWJm-Ife9vfZIIkKdfjbqa3jygu-yySOHmKDR1ee7IVLYpmjfuf-Iitc.vCqE6LWH6_1MdA1gZyVdiWrnBl8VfqFfSIhSMUEG7xI&dib_tag=se&keywords=kit%2Bkeyboard%2Band%2Bmouse%2Bwith%2Bheadset&qid=1761547060&s=pc&sr=1-4-catcorr&th=1' },
+			{ nome: 'Game Punk Codebreakers PC Gaming Bundle', img: 'https://m.media-amazon.com/images/I/71gunl+SQ4L._AC_SL1500_.jpg', link: 'https://www.amazon.ca/Game-Punk-Codebreakers-Gaming-Bundle/dp/B0CDQMGPFK/ref=sr_1_15?dib=eyJ2IjoiMSJ9.FSuz2eGNV2fcRbxwTHIaA34gEs1jm-0xeNhs_ngQM4n6lORx4GUhLXHvbLoH7zmu5JwyMUyg5WkaPLeCaiaF97cyA14hTxelc2pz4UlJZCVb54LuH9nVnP6HdEZg6xpU9nZkTN9BE5T-tu9gzuFCccHgN5E4JJ370Fa3C3_QxkQvpH2uEjGJuiQ674bIL5LqsKT728YMA3iRpR6vgDxLCEGmCeJJRZFkDkK7NogWb1CIHiOMYMlxWJm-Ife9vfZIIkKdfjbqa3jygu-yySOHmKDR1ee7IVLYpmjfuf-Iitc.vCqE6LWH6_1MdA1gZyVdiWrnBl8VfqFfSIhSMUEG7xI&dib_tag=se&keywords=kit+keyboard+and+mouse+with+headset&qid=1761547060&s=pc&sr=1-15-catcorr' },
+			{ nome: 'RedThunder K10 Wired Gaming Keyboard and Mouse and Wrist Rest Combo', img: 'https://m.media-amazon.com/images/I/71RyPHQp6ML._AC_SL1500_.jpg', link: 'https://www.amazon.ca/RedThunder-Keyboard-Wrist-Rest-Mechanical-Anti-ghosting/dp/B09N9FR2FH/ref=sr_1_50_sspa?dib=eyJ2IjoiMSJ9.Wq4qRtIkKJUiGZRVwPPP7h7hIULvDRAmky4D1JdWNs_GjHj071QN20LucGBJIEps.bqmE6TdRX23HNrYIr4jAJ3Q_mTH9ADLt48v92QdIkOU&dib_tag=se&keywords=kit%2Bkeyboard%2Band%2Bmouse&qid=1761547397&s=pc&sr=1-50-spons&xpid=u536aXkhw_j4U&sp_csd=d2lkZ2V0TmFtZT1zcF9hdGZfbmV4dA&th=1' },
+			{ nome: 'RedThunder K10 Wireless Gaming Keyboard and Mouse Combo', img: 'https://m.media-amazon.com/images/I/71yEAddmq9L._AC_SL1500_.jpg', link: 'https://www.amazon.ca/RedThunder-K10-Rechargeable-Mechanical-Anti-ghosting/dp/B0CLKZS8BQ/ref=sr_1_59_sspa?dib=eyJ2IjoiMSJ9.f8WBG5lSYxXD78jMInA9aChvYcRIPWpaPjndeI0nkDv0ElG4sBtlRK8Zujqg-bUT11QTKK-jmgzPq7eFbfsSqD10Ump6TcPwyFtu_OabmjzbXDoXUeMsBekvwmKRrxcpH6kKAbyEXYX3B6dsbMHw3xdRKHpP_MRbGr1hxZsC0JFSCOe9o9pNvcCKR8uoUPn0_icJgOLh1TaXYp_dK0ZzRdygBKJI3ajLY2bU_j1ZrdS_Y359AKNMuahOlHjQpqWSoX_UzsABraKh6rVrNCqhXYiUHp2XtC-WsN1nboDYStE.QZPpJsC7e1rsam_xau4qe5R3oyu3vNmn3uMHnKwz0bk&dib_tag=se&keywords=kit%2Bkeyboard%2Band%2Bmouse&qid=1761547397&s=pc&sr=1-59-spons&xpid=u536aXkhw_j4U&sp_csd=d2lkZ2V0TmFtZT1zcF9tdGY&th=1' },
+			{ nome: 'jojofuny USB Mechanical Keyboard Backlight Gaming', img: 'https://m.media-amazon.com/images/I/51CfjWc+DpL._AC_SL1221_.jpg', link: 'https://www.amazon.ca/jojofuny-Keyboards-Keyboard-Mechanical-Backlit/dp/B0CS3W1DK5/ref=sr_1_63?dib=eyJ2IjoiMSJ9.f8WBG5lSYxXD78jMInA9aChvYcRIPWpaPjndeI0nkDv0ElG4sBtlRK8Zujqg-bUT11QTKK-jmgzPq7eFbfsSqD10Ump6TcPwyFtu_OabmjzbXDoXUeMsBekvwmKRrxcpH6kKAbyEXYX3B6dsbMHw3xdRKHpP_MRbGr1hxZsC0JFSCOe9o9pNvcCKR8uoUPn0_icJgOLh1TaXYp_dK0ZzRdygBKJI3ajLY2bU_j1ZrdS_Y359AKNMuahOlHjQpqWSoX_UzsABraKh6rVrNCqhXYiUHp2XtC-WsN1nboDYStE.QZPpJsC7e1rsam_xau4qe5R3oyu3vNmn3uMHnKwz0bk&dib_tag=se&keywords=kit%2Bkeyboard%2Band%2Bmouse&qid=1761547397&s=pc&sr=1-63&xpid=u536aXkhw_j4U&th=1' },
+			{ nome: 'GravaStar Mercury K1 Lite', img: 'https://m.media-amazon.com/images/I/71IZzzT1fYL._AC_SL1200_.jpg', link: 'https://www.amazon.ca/GravaStar-K1-Lite-Mechanical-Swappable/dp/B0DFXWQWB8/ref=sr_1_122_sspa?dib=eyJ2IjoiMSJ9.WTcmLZbNjKKjdgsJthRKFCcIC-otGIRxCAo5PrTWrmTGjHj071QN20LucGBJIEps.FrvFFNnsVj1xO5GCPd4QB9dYZgiWXZ-kMBeB_H1mXq8&dib_tag=se&keywords=kit%2Bkeyboard%2Band%2Bmouse&qid=1761547480&s=pc&sr=1-122-spons&xpid=u536aXkhw_j4U&sp_csd=d2lkZ2V0TmFtZT1zcF9hdGZfbmV4dA&th=1' },
+			{ nome: 'RedThunder K10 Wired Gaming Keyboard and Mouse and Wrist Rest Combo', img: 'https://m.media-amazon.com/images/I/71+WCNHB55L._AC_SL1500_.jpg', link: 'https://www.amazon.ca/RedThunder-K10-Mechanical-Anti-ghosting-Accessories/dp/B0D413SSNL/ref=sr_1_193_sspa?dib=eyJ2IjoiMSJ9.IASBsL4Uzn78qyW4jikJr9YxOMsgCadQDbr8nIK_kNTGjHj071QN20LucGBJIEps.EikVYGodw7s1oQ3t5YZwuXEKDNDRwUW-PJDuOMJGCF0&dib_tag=se&keywords=kit%2Bkeyboard%2Band%2Bmouse&qid=1761547545&s=pc&sr=1-193-spons&xpid=u536aXkhw_j4U&sp_csd=d2lkZ2V0TmFtZT1zcF9hdGZfbmV4dA&th=1' }
+          ]
+        }
+      };
+
+    const estiloSelect = document.getElementById('estilo');
+    const modeloSelect = document.getElementById('modelo');
+    const modeloContainer = document.getElementById('modeloContainer');
+    const itensContainer = document.getElementById('itensContainer');
+
+    estiloSelect.addEventListener('change', () => {
+      const estilo = estiloSelect.value;
+      modeloContainer.style.display = estilo ? 'block' : 'none';
+      itensContainer.innerHTML = '';
+    });
+
+    modeloSelect.addEventListener('change', () => {
+      const estilo = estiloSelect.value;
+      const modelo = modeloSelect.value;
+      const itens = data[estilo]?.[modelo] || [];
+      itensContainer.innerHTML = '';
+      if (itens.length > 0) {
+        itens.forEach(item => {
+          const div = document.createElement('div');
+          div.className = 'item';
+          div.innerHTML = `
+            <img src="${item.img}" alt="${item.nome}">
+            <h4>${item.nome}</h4>
+            <a href="${item.link}" class="btn" target="_blank">Ver mais</a>
+          `;
+          itensContainer.appendChild(div);
+        });
+      }
+    });
+
+    function showTab(tabId) {
+      document.querySelectorAll('.tab, .content').forEach(el => el.classList.remove('active'));
+      document.querySelector(`.tab[onclick="showTab('${tabId}')"]`).classList.add('active');
+      document.getElementById(tabId).classList.add('active');
+    }
+  </script>
+</body>
+</html>
