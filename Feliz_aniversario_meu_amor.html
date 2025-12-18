@@ -1,0 +1,988 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Para Anny</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600&display=swap" rel="stylesheet">
+
+<style>
+:root{
+  --vermelho:#8b1e1e;
+  --papel:#f8f4ef;
+  --sombra:rgba(0,0,0,.25)
+}
+*{margin:0;padding:0;box-sizing:border-box}
+
+body{
+  font-family:'Playfair Display',serif;
+  min-height:100vh;
+  background:url('https://images7.alphacoders.com/848/thumb-1920-848317.jpg') center/cover fixed no-repeat;
+  overflow-x:hidden;
+}
+
+/* ===== SAKURA ===== */
+.sakura-container{
+  position:fixed;
+  inset:0;
+  pointer-events:none;
+  z-index:0;
+}
+
+/* ===== COVER (carta fechada) ===== */
+.cover{
+  position:fixed;
+  inset:0;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  background:rgba(255,255,255,0.9);
+  z-index:30;
+  cursor:default; /* only the heart is clickable */
+  transition:opacity .6s ease, transform .6s ease;
+}
+.cover .card{
+  width:80%;
+  max-width:900px;
+  background:#fff;
+  border:6px solid var(--papel); /* tom de papel */
+  padding:18px 26px;
+  box-shadow:0 20px 60px rgba(0,0,0,.25), inset 0 2px 8px rgba(0,0,0,0.03);
+  position:relative;
+  overflow:hidden;
+}
+.cover.opened{ opacity:0; transform:scale(.98) translateY(-10px); pointer-events:none }
+
+/* Cover uses an image; only the heart button opens it */
+.cover .card img{ width:100%; height:auto; display:block; filter: none; }
+
+/* dark overlay around the card (behind it) so the image stays sharp */
+.cover::before{
+  content:'';
+  position:absolute;
+  inset:0;
+  /* efeito branco e leitoso ao redor da imagem para mesclar com o fundo (mais opaco) */
+  background:rgba(255,255,255,0.65);
+  -webkit-backdrop-filter: blur(6px);
+  backdrop-filter: blur(6px);
+  pointer-events:none;
+  z-index:1;
+}
+.cover .card{ z-index:2; }
+
+/* falling hearts on the cover */
+.heart-fall{ position:absolute; inset:0; pointer-events:none; z-index:2; overflow:hidden }
+/* heart element using a text glyph (upright) */
+.heart-fall .hf{
+  position:absolute;
+  top:-30px;
+  left:0;
+  font-size:18px;
+  line-height:1;
+  color:#ff637d;
+  text-shadow:0 4px 6px rgba(0,0,0,0.12);
+  will-change:transform,opacity;
+}
+.heart-fall .hf::before{ content:'❤'; display:block }
+
+@keyframes hfFall{
+  to{
+    transform: translateY(120vh) scale(.9);
+    opacity:0;
+  }
+}
+
+@keyframes hfDrift{
+  from{ left: var(--x); }
+  to{ left: calc(var(--x) + var(--drift)); }
+}
+
+.heart-btn{
+  position:absolute;
+  left:50%;
+  top:44%;
+  transform:translate(-50%,-50%);
+  width:140px;
+  height:140px;
+  border-radius:50%;
+  /* visually invisible hotspot: transparent background and no border */
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  z-index:3; /* above overlay */
+}
+.heart-btn:focus{ outline:3px solid rgba(255,182,193,0.6); }
+.sakura{
+  position:absolute;
+  top:-40px;
+  width:26px;
+  height:26px;
+  background:url('https://static.vecteezy.com/system/resources/previews/019/046/346/large_2x/sakura-flower-japan-icon-png.png') center/contain no-repeat;
+  opacity:.9;
+  animation:fall linear infinite;
+}
+@keyframes fall{
+  to{transform:translateY(110vh) rotate(360deg)}
+}
+
+/* enhanced petals (created after clicking the cover heart) */
+.petal{
+  position:absolute;
+  top:-40px;
+  width:28px;
+  height:28px;
+  background:url('https://static.vecteezy.com/system/resources/previews/019/046/346/large_2x/sakura-flower-japan-icon-png.png') center/contain no-repeat;
+  will-change:transform,opacity,left;
+  opacity:0.95;
+}
+@keyframes petalFall{
+  to{ transform: translateY(120vh) rotate(360deg) scale(var(--s,1)); opacity:0 }
+}
+@keyframes petalDrift{ from{ left: var(--x); } to{ left: calc(var(--x) + var(--drift)); } }
+
+/* ===== AUDIO ===== */
+.audio-control{
+  position:fixed;
+  top:18px;
+  right:18px;
+  display:flex;
+  align-items:center;
+  gap:10px;
+  background:rgba(255,255,255,.9);
+  padding:8px 12px;
+  border-radius:20px;
+  box-shadow:0 10px 30px var(--sombra);
+  z-index:10;
+}
+.audio-control button{
+  border:none;
+  background:none;
+  font-size:18px;
+  cursor:pointer;
+}
+
+/* ===== LIVRO ===== */
+.book{
+  position:relative;
+  perspective:1600px;
+  max-width:820px;
+  margin:12vh auto;
+  z-index:3;
+}
+.page{
+  background:linear-gradient(180deg,#fdfaf6,var(--papel));
+  padding:60px 70px;
+  box-shadow:0 30px 80px var(--sombra);
+  border-radius:6px;
+  transform-style:preserve-3d;
+  backface-visibility:hidden;
+  transform-origin:left center; /* pivot like a page */
+  transition:transform .9s cubic-bezier(.4,0,.2,1), box-shadow .45s ease;
+  position:relative;
+  overflow:hidden;
+}
+.page::before{
+  /* thin paper edge highlight (front) */
+  content:'';
+  position:absolute;
+  top:0; left:0; bottom:0;
+  width:12px;
+  background:linear-gradient(90deg, rgba(255,255,255,0.98), rgba(255,255,255,0.35));
+  transform-origin:left center;
+  pointer-events:none;
+  opacity:0.9;
+}
+.page::after{
+  /* simulated back-of-page + curl shadow */
+  content:'';
+  position:absolute;
+  right:0; top:0; bottom:0;
+  width:48%;
+  background:linear-gradient(90deg, rgba(0,0,0,0.06), rgba(0,0,0,0.15));
+  transform-origin:left center;
+  transform: skewY(0deg) rotateY(0deg);
+  opacity:0;
+  pointer-events:none;
+  transition:opacity .35s ease, transform .9s cubic-bezier(.4,0,.2,1);
+}
+.page.flip{
+  /* more natural page curl: deep Y rotation, slight X rotation and translate to mimic lift */
+  transform: rotateY(-160deg) translateX(-18px) rotateX(6deg) skewY(-3deg);
+  box-shadow: -48px 28px 140px rgba(0,0,0,0.42);
+}
+.page.flip::after{ opacity:1; transform: skewY(-6deg) rotateY(8deg); }
+.page h1{color:var(--vermelho);margin-bottom:12px}
+.page p{line-height:1.8;font-size:18px;margin-bottom:18px}
+
+/* reveal / typewriter animation for page content */
+.to-animate{ opacity:0; transform:translateY(8px); }
+.to-animate.reveal{ animation: fadeUp .48s cubic-bezier(.2,.8,.2,1) var(--reveal-delay,0s) forwards; }
+@keyframes fadeUp{ from{ opacity:0; transform:translateY(8px);} to{ opacity:1; transform:translateY(0);} }
+
+/* typewriter span inside paragraphs/headers */
+/* per-character type reveal that respects wrapping (mobile-friendly) */
+.typewrap{ display:inline; white-space:pre-wrap; }
+.typechar{ display:inline-block; opacity:0; transform:translateY(6px); transition:opacity .06s linear, transform .26s cubic-bezier(.2,.8,.2,1); }
+.typechar.show{ opacity:1; transform:translateY(0); }
+.typecursor{ border-right: .08em solid rgba(0,0,0,0.08); margin-left:2px; }
+
+/* page curl visual (appears during .flip) */
+.page .page-curl{
+  position:absolute;
+  right:-6%;
+  top:8%;
+  width:34%;
+  height:84%;
+  pointer-events:none;
+  background: linear-gradient(90deg, rgba(255,255,255,0.02), rgba(255,255,255,0.12) 30%, rgba(0,0,0,0.06) 60%, rgba(0,0,0,0.12));
+  border-radius:4px 0 0 4px;
+  transform-origin:left center;
+  opacity:0;
+  box-shadow: -18px 10px 60px rgba(0,0,0,0.35);
+  transform: translateX(6%) rotateY(0deg) skewY(0deg);
+  transition: opacity .35s ease, transform .9s cubic-bezier(.4,0,.2,1);
+}
+.page.flip .page-curl{
+  opacity:1;
+  transform: translateX(-8%) rotateY(18deg) skewY(-6deg) scaleX(.98);
+}
+
+/* small accent for the curl peak to emulate light glancing */
+.page .page-curl::before{
+  content:'';
+  position:absolute; left:6%; top:6%; width:28%; height:88%;
+  background: linear-gradient(90deg, rgba(255,255,255,0.6), rgba(255,255,255,0.02));
+  filter: blur(8px);
+  opacity:.12;
+  transform: skewY(-8deg) translateX(2%);
+}
+
+/* ===== GALERIA ===== */
+.gallery{
+  display:grid;
+  grid-template-columns:repeat(3,1fr);
+  grid-auto-rows:200px;
+  gap:14px;
+}
+.gallery img{
+  width:100%;
+  height:100%;
+  object-fit:cover;
+  border-radius:8px;
+  cursor:pointer;
+  transition:transform .4s, box-shadow .25s;
+}
+.gallery img:hover{transform:scale(1.05)}
+
+/* size classes applied after measuring natural image size */
+.gallery img.large{ grid-column: span 3; grid-row: auto; }
+.gallery img.medium{ grid-column: span 2; grid-row: auto; }
+.gallery img.small{ grid-column: span 1; grid-row: auto; }
+
+@media(max-width:900px){
+  .gallery{ grid-template-columns:repeat(2,1fr); }
+  .gallery img.large{ grid-column: span 2; }
+  .gallery img.medium{ grid-column: span 2; }
+}
+@media(max-width:420px){
+  .gallery{ grid-template-columns:repeat(1,1fr); grid-auto-rows:160px }
+  .gallery img.large,.gallery img.medium,.gallery img.small{ grid-column: span 1 }
+}
+
+/* PEDIDOS (card + WhatsApp) */
+.pedido-card{ display:flex; align-items:center; gap:14px; background: rgba(255,255,255,0.6); padding:12px; border-radius:12px; box-shadow:0 8px 30px rgba(0,0,0,0.08); max-width:640px }
+.pedido-card{ overflow:hidden }
+.img-square{ width:72px; height:72px; border-radius:10px; display:flex; align-items:center; justify-content:center; background: rgba(255,182,193,0.18); backdrop-filter: blur(6px); }
+.img-square img{ width:56px; height:56px; object-fit:contain; display:block }
+.pedido-info{ display:flex; flex-direction:row; gap:12px; align-items:center; width:100% }
+.pedido-brand{ font-weight:600; font-size:18px; color:var(--vermelho); flex:1; text-align:center; white-space:nowrap }
+.pedido-info > div:nth-child(2){ flex:1; display:flex; justify-content:center }
+.wa-btn{ display:inline-block; padding:8px 12px; background: #25D366; color:white; border-radius:8px; text-decoration:none; font-weight:600; min-width:92px; text-align:center }
+.wa-btn.small{ padding:6px 10px; font-size:14px }
+.pedido-info a.wa-btn{ white-space:nowrap }
+.pedido-bottom{ margin-top:10px; height:2px; border-radius:2px; background: rgba(0,0,0,0.12); /* thin translucent border */
+  /* start after the mini image + gap (72px + 14px) */
+  width: calc(100% - 86px);
+  margin-left:86px;
+}
+@media(max-width:420px){
+  .pedido-bottom{ width:100%; margin-left:0 }
+}
+@media(max-width:420px){
+  .pedido-info{ flex-direction:column; align-items:flex-start; gap:8px }
+}
+
+/* layout for multiple pedido cards: align in a row when enough space */
+.pedido-list{ display:flex; gap:12px; align-items:flex-start; justify-content:center; flex-wrap:wrap; margin-top:10px }
+.pedido-list .pedido-card{ flex: 1 1 260px; max-width:320px }
+
+
+/* ===== LIGHTBOX ===== */
+.lightbox{
+  position:fixed;
+  inset:0;
+  background:rgba(0,0,0,.85);
+  display:none;
+  align-items:center;
+  justify-content:center;
+  z-index:20;
+}
+.lightbox img{max-width:90%;max-height:90%;border-radius:10px}
+
+/* ===== MENU ===== */
+.menu-radial{
+  position:fixed;
+  bottom:28px;
+  right:28px;
+  z-index:5;
+}
+body.menu-open .book,
+body.menu-open .sakura-container{
+  filter: blur(6px) brightness(.92);
+  transition:filter .25s ease;
+  pointer-events: none;
+  user-select: none;
+}
+.menu-toggle{
+  width:58px;
+  height:58px;
+  border-radius:50%;
+  background:var(--vermelho);
+  color:#fff;
+  border:none;
+  font-size:24px;
+  cursor:pointer;
+}
+.menu-items{
+  position:absolute;
+  bottom:70px;
+  right:6px;
+  display:flex;
+  flex-direction:column;
+  gap:14px;
+  pointer-events:none;
+}
+.menu-items button{
+  width:46px;
+  height:46px;
+  border-radius:50%;
+  border:none;
+  background:#fff;
+  opacity:0;
+  transform:translateY(20px);
+  transition:.4s;
+}
+.menu-radial.open .menu-items{pointer-events:auto}
+.menu-radial.open .menu-items button{opacity:1;transform:translateY(0)}
+
+@media(max-width:768px){
+  .page{padding:40px 26px}
+}
+</style>
+</head>
+<body>
+
+<div class="sakura-container" id="sakura"></div>
+
+<!-- COVER: carta fechada com laço -->
+<div id="cover" class="cover" role="button" tabindex="0" aria-label="Abrir carta">
+  <div id="heartFall" class="heart-fall" aria-hidden="true"></div>
+  <div class="card">
+  <img id="coverImg" src="https://raw.githubusercontent.com/TakkiTX/Comemora-es/main/fundo.png" alt="Feliz Niver" />
+    <button id="heartBtn" class="heart-btn" aria-label="Abrir carta (coração)"></button>
+  </div>
+</div>
+
+<!-- AUDIO -->
+<div class="audio-control">
+  <button id="playBtn">▶</button>
+  <input type="range" id="volume" min="0" max="1" step="0.01" value="0.6">
+  <span id="audioStatus" style="font-size:12px;color:#333;margin-left:8px;">carregando...</span>
+</div>
+
+<audio id="bgm" preload="auto" loop></audio>
+
+<!-- LIVRO -->
+<div class="book">
+  <div class="page" id="page">
+    <div class="page-content" id="pageContent" aria-live="polite"></div>
+    <div class="page-curl" aria-hidden="true"></div>
+  </div>
+</div>
+
+<!-- MENU -->
+<div class="menu-radial" id="menu">
+  <button class="menu-toggle" id="toggle">≡</button>
+  <div class="menu-items" id="menuItems"></div>
+</div>
+
+<!-- LIGHTBOX -->
+<div class="lightbox" id="lightbox"><img></div>
+
+<script>
+const page=document.getElementById('page');
+const pageContent = page.querySelector('.page-content');
+const menu=document.getElementById('menu');
+const toggle=document.getElementById('toggle');
+const menuItems=document.getElementById('menuItems');
+const audio=document.getElementById('bgm');
+const playBtn=document.getElementById('playBtn');
+const volume=document.getElementById('volume');
+const audioStatus = document.getElementById('audioStatus');
+
+// flag para evitar condições de corrida entre play/pause
+let playPending = false;
+
+// Lista de fontes (em ordem de preferência). Se a primeira falhar, tentamos as seguintes.
+const audioSources = [
+  './AYANE.mp3', // local: coloque AYANE.mp3 na mesma pasta que 4.html (respeite mesmo nome)
+  'https://raw.githubusercontent.com/TakkiTX/Comemora-es/main/AYANE.mp3',
+  // fallback público (Wikimedia Commons costuma enviar CORS headers)
+  'https://upload.wikimedia.org/wikipedia/commons/4/4f/Sakura_%28folk_song%29.ogg'
+];
+
+function tryLoadAudioSources(sources){
+  let idx = 0;
+  audioStatus.textContent = 'carregando faixa...';
+  audio.crossOrigin = 'anonymous';
+
+  function tryNext(){
+    if(idx >= sources.length){
+      audioStatus.textContent = 'Erro: não foi possível carregar nenhuma faixa.';
+      console.error('Audio: all sources failed', sources);
+      return;
+    }
+    const src = sources[idx];
+    audio.src = src;
+    // trigger load
+    try{
+      audio.load();
+    }catch(e){
+      console.warn('audio.load() threw', e);
+    }
+    audioStatus.textContent = `tentando fonte ${idx+1}...`;
+
+    const onError = ()=>{
+      audio.removeEventListener('canplaythrough', onOK);
+      console.warn('Audio source failed:', src);
+      idx++;
+      // small delay before tentar próxima
+      setTimeout(tryNext, 200);
+    };
+
+    const onOK = ()=>{
+      audio.removeEventListener('error', onError);
+      audioStatus.textContent = 'faixa pronta';
+      console.info('Audio loaded from:', src);
+    };
+
+    // também registra erro genérico para ajudar a debugar CORS/404
+    audio.addEventListener('error', (ev)=>{
+      console.warn('audio element error event', ev);
+    }, {once:true});
+
+    audio.addEventListener('error', onError, {once:true});
+    audio.addEventListener('canplaythrough', onOK, {once:true});
+  }
+
+  tryNext();
+}
+
+// iniciar tentativa de carregamento das fontes
+tryLoadAudioSources(audioSources);
+// garantir que o volume inicial seja numérico e audível
+audio.volume = parseFloat(volume.value) || 0.6;
+audio.muted = false;
+
+/* ===== AUDIO ===== */
+function fadeInAudio(){
+  // faz um fade do volume atual (começando em 0) até o alvo (valor do controle ou 0.6)
+  const target = Math.max(parseFloat(volume.value) || 0.6, 0.01);
+  audio.volume = 0;
+  volume.value = 0;
+  const fade=setInterval(()=>{
+    if(audio.volume < target){
+      audio.volume = Math.min(target, audio.volume + 0.02);
+      volume.value = audio.volume.toFixed(2);
+    } else {
+      clearInterval(fade);
+    }
+  },120);
+}
+
+playBtn.onclick=async ()=>{
+  if (audio.paused) {
+    if (playPending) return; // evita chamadas repetidas enquanto play está pendente
+    playPending = true;
+    playBtn.disabled = true;
+    try {
+      await audio.play();
+      // o evento 'play' também atualiza o ícone; aqui apenas garantia extra
+      playBtn.textContent = '⏸';
+      fadeInAudio();
+    } catch (err) {
+      // AbortError ocorre quando pause() é chamado antes do play() completar.
+      // Ignoramos AbortError; logamos os outros erros para depuração.
+      if (err && err.name !== 'AbortError') console.error('Playback error:', err);
+    } finally {
+      playPending = false;
+      playBtn.disabled = false;
+    }
+  } else {
+    // pausar pode rejeitar uma play pendente; como lidamos com isso no catch acima,
+    // aqui apenas pausamos e atualizamos o ícone.
+    audio.pause();
+    playBtn.textContent='▶';
+  }
+};
+
+// manter o ícone sincronizado caso o estado mude por outros meios
+audio.addEventListener('play', ()=>{ playBtn.textContent='⏸'; });
+audio.addEventListener('pause', ()=>{ playBtn.textContent='▶'; });
+
+// garantir que o controle deslizante atualize audio.volume como número
+// garantir que o controle deslizante atualize audio.volume como número
+volume.oninput = ()=>{ audio.volume = parseFloat(volume.value); };
+
+/* ===== ABAS ===== */
+const abas=[
+ {icon:'💌',html:`<h1>Para アニー・ヨシダ</h1>
+<p>❤ ✨ Feliz Aniversário, meu amor ❤ ✨</p>
+<p>❤❤❤❤❤❤❤❤❤❤❤❤❤❤❤❤❤❤❤❤❤❤❤</p>
+
+<p>
+Hoje eu celebro muito mais do que o seu aniversário.  
+Hoje eu celebro o dia em que o mundo ganhou você —  
+e o dia em que meu coração encontrou tudo aquilo que sempre procurou.
+</p>
+
+<p>
+De todas as formas, de todos os caminhos, minhas escolhas para o futuro são sempre você  
+e todos os momentos que eu sonho em viver ao seu lado.  
+Você simplesmente me faz sorrir de um jeito mais belo do que eu jamais pensei ver,  
+e tudo o que eu mais quero é te fazer sorrir na mesma intensidade  
+que o meu coração sorri por você.
+</p>
+
+<p>
+Você é linda…  
+minha mozi, a princesa dos meus contos de fadas,  
+a mulher mais radiante do mundo.  
+Carinhosa, amorosa, doce e forte ao mesmo tempo.  
+Seu amor brilha como o sol que ilumina meus dias  
+e aquece meu coração do jeito mais bonito que existe.
+</p>
+
+<p>
+Você merece cada conquista, cada felicidade,  
+e tudo aquilo que mais ama na sua vida.  
+Eu quero estar ao seu lado para te ajudar a conquistar tudo o que desejar,  
+para te apoiar sempre que precisar de força, segurança e carinho.  
+Quero te ver transbordar de felicidade e proteção,  
+porque o coração lindo que você tem é exatamente o que me faz querer cuidar de você.
+</p>
+
+<p>
+Mesmo estando longe neste momento,  
+minhas mãos digitais te abraçam com todo o amor que existe em mim.  
+Meu amor por você vai muito além de algo básico —  
+ele é profundo, sincero e verdadeiro.
+</p>
+
+<p>
+Eu sei que hoje é o seu aniversário,  
+mas no fundo nós dois somos aquilo que sempre procuramos em nossos corações.  
+E hoje podemos comemorar essa data maravilhosa:  
+o seu nascimento neste mundo que nos permitiu nos encontrar  
+e estar juntos sendo felizes.
+</p>
+
+<p>
+Hoje, amanhã e sempre, eu te desejo felicidades eternas.  
+Eu escolho você. Sempre. ❤
+</p>
+
+<p>
+お誕生日おめでとう、アニー。  
+あなたは僕の未来であり、僕の幸せです。
+</p>
+
+<p><em>Com todo o meu amor,<br>George (baby)</em></p>`},
+ {icon:'📸',html:`<h1>Memórias</h1><div class="gallery">${[
+  'https://raw.githubusercontent.com/TakkiTX/Comemora-es/main/foto1.jpg',
+  'https://raw.githubusercontent.com/TakkiTX/Comemora-es/main/foto2.jpg',
+  'https://raw.githubusercontent.com/TakkiTX/Comemora-es/main/foto3.png',
+  'https://raw.githubusercontent.com/TakkiTX/Comemora-es/main/foto4.png',
+  'https://raw.githubusercontent.com/TakkiTX/Comemora-es/main/foto5.png',
+  'https://raw.githubusercontent.com/TakkiTX/Comemora-es/main/foto6.png'
+  ].map(src=>`<img src="${src}" onerror="this.onerror=null;this.src='https://picsum.photos/400?blur=2'">`).join('')}</div>`},
+ {icon:'🍃',html:`<h1>Pedidos</h1>
+<div class="pedido-list">
+  <div class="pedido-card">
+    <div class="img-square">
+      <img src="https://www.trecebits.com/wp-content/uploads/2023/03/Crunchyroll-1.webp" alt="Crunchyroll">
+    </div>
+    <div class="pedido-info">
+      <div class="pedido-brand">Crunchyroll</div>
+      <div style="display:flex;gap:10px;align-items:center">
+        <a class="wa-btn" href="https://wa.me/5511964283252?text=quero%20assistir%20um%20anime%20da%20minha%20escolha%20com%20você" target="_blank" rel="noopener">ENVIAR</a>
+      </div>
+    </div>
+    <div class="pedido-bottom" aria-hidden="true"></div>
+  </div>
+
+  <!-- segundo cartão: Jogos -->
+  <div class="pedido-card">
+    <div class="img-square" aria-hidden="true">
+      <span style="font-size:32px">🎮</span>
+    </div>
+    <div class="pedido-info">
+      <div class="pedido-brand">Jogos</div>
+      <div style="display:flex;gap:10px;align-items:center">
+        <a class="wa-btn" href="https://wa.me/5511964283252?text=Escolho%20um%20vale%20jogo%20para%20jogarmos%20qualquer%20jogo%20a%20minha%20escolha%20do%20meu%20jeito" target="_blank" rel="noopener">ENVIAR</a>
+      </div>
+    </div>
+    <div class="pedido-bottom" aria-hidden="true"></div>
+  </div>
+
+  <div class="pedido-card">
+    <div class="img-square" aria-hidden="true">
+      <span style="font-size:28px">💬</span>
+    </div>
+    <div class="pedido-info">
+      <div class="pedido-brand">Um Pedido</div>
+      <div style="display:flex;gap:10px;align-items:center">
+        <a class="wa-btn" href="https://wa.me/5511964283252?text=Escolho%20um%20pedido%20que%20voce%20tera%20que%20cumprir%20pra%20mim" target="_blank" rel="noopener">ENVIAR</a>
+      </div>
+    </div>
+    <div class="pedido-bottom" aria-hidden="true"></div>
+  </div>
+</div>`}
+];
+
+abas.forEach(a=>{
+  const b=document.createElement('button');
+  b.textContent=a.icon;
+  b.onclick=()=>virarPagina(a.html);
+  menuItems.appendChild(b);
+});
+
+function virarPagina(html){
+  // add flip class to animate page-turn (more realistic curl)
+  page.classList.add('flip');
+  // play a short page-turn sound (synthesized via WebAudio)
+  playTurnSound();
+  // replace content around the peak of the turn (timing tuned for the new animation)
+  setTimeout(()=>{
+    // inject content into pageContent (preserve curl)
+    pageContent.innerHTML = html;
+
+    // collect elements to animate: headers, paragraphs, list items and gallery
+    const elems = Array.from(pageContent.querySelectorAll('h1,h2,p,li,div.gallery'));
+    elems.forEach((el,i)=>{
+      // wrap plain text blocks (p, h1/h2) in a typewriter span so we can animate like escrita
+      if(el.tagName === 'P' || el.tagName === 'H1' || el.tagName === 'H2'){
+        const text = el.textContent || '';
+        // replace content with a wrapper that contains one span per character
+        el.textContent = '';
+        const wrap = document.createElement('span');
+        wrap.className = 'typewrap';
+        // preserve trimmed lines but keep internal spacing/newlines
+        const chars = text.split('');
+        chars.forEach(ch=>{
+          const chSpan = document.createElement('span');
+          chSpan.className = 'typechar';
+          // For spaces/newlines keep them as normal characters so wrapping works
+          chSpan.textContent = ch;
+          wrap.appendChild(chSpan);
+        });
+        el.appendChild(wrap);
+        // store approximate count to tune per-character timing later
+        wrap.dataset.chars = String(chars.length || 1);
+      }
+      // mark element initial state
+      el.classList.add('to-animate');
+      el.style.setProperty('--reveal-delay', `${(i*0.12).toFixed(2)}s`);
+    });
+
+    // After the flip ends (flip removal scheduled at 1200ms from flip start), reveal content
+    // Injection happened at 600ms after flip start; reveal after remaining ~600ms
+    setTimeout(()=>{
+      elems.forEach(el=>{
+        // trigger fade-up for the block
+        el.classList.add('reveal');
+        // reveal characters if present (per-character staggered reveal)
+        const wrap = el.querySelector('.typewrap');
+        if(wrap){
+          const chars = Array.from(wrap.querySelectorAll('.typechar'));
+          const baseDelay = (parseFloat(el.style.getPropertyValue('--reveal-delay')) || 0) * 1000;
+          // choose per-character gap so longer paragraphs are still reasonable in time
+          const approx = parseInt(wrap.dataset.chars || String(chars.length || 1), 10);
+          const perChar = Math.max(16, Math.min(36, Math.floor(700 / Math.max(1, approx))));
+          chars.forEach((c, idx)=>{
+            setTimeout(()=> c.classList.add('show'), baseDelay + idx * perChar);
+          });
+          // optional cursor: add a small cursor span that disappears after typing
+          const cursor = document.createElement('span'); cursor.className = 'typecursor'; cursor.textContent = '';
+          wrap.appendChild(cursor);
+          // remove cursor after typing finished
+          const totalMs = baseDelay + chars.length * perChar + 200;
+          setTimeout(()=> cursor.remove(), totalMs);
+        }
+      });
+    }, 650); // slightly after flip end for a natural feel
+  }, 600);
+  // keep the flip a bit longer for the curl+shadow to settle
+  setTimeout(()=>{ page.classList.remove('flip'); }, 1200);
+  // fechar menu e remover o blur aplicado no body
+  menu.classList.remove('open');
+  document.body.classList.remove('menu-open');
+  initGallery();
+}
+
+function initGallery(){
+  // search inside the page content to avoid matching other elements
+  const imgs = Array.from(pageContent.querySelectorAll('.gallery img'));
+  imgs.forEach(img=>{
+    img.onclick=()=>{
+      const lb=document.getElementById('lightbox');
+      lb.style.display='flex';
+      lb.querySelector('img').src=img.src;
+    }
+  });
+  // measure and reorder gallery so largest images appear first
+  const gallery = pageContent.querySelector('.gallery');
+  if(gallery) adjustGalleryOrder(gallery);
+}
+
+function adjustGalleryOrder(gallery){
+  const imgs = Array.from(gallery.querySelectorAll('img'));
+  if(imgs.length===0) return;
+
+  // return a promise that resolves when an image has loaded (or errored)
+  const whenLoaded = (img)=>new Promise(resolve=>{
+    if(img.complete && img.naturalWidth){
+      return resolve(img);
+    }
+    const onDone = ()=>{ img.removeEventListener('load', onDone); img.removeEventListener('error', onDone); resolve(img); };
+    img.addEventListener('load', onDone);
+    img.addEventListener('error', onDone);
+    // set a failsafe timeout in case load never fires
+    setTimeout(()=>resolve(img), 1500);
+  });
+
+  Promise.all(imgs.map(whenLoaded)).then(list=>{
+    // compute area (use naturalWidth*naturalHeight when available; fallback to offset area)
+    const areas = list.map(img=>{
+      const w = img.naturalWidth || img.width || img.offsetWidth || 1;
+      const h = img.naturalHeight || img.height || img.offsetHeight || 1;
+      return {img, area: w*h};
+    });
+    // sort descending by area
+    areas.sort((a,b)=>b.area - a.area);
+    const max = areas[0].area || 1;
+    // thresholds relative to max
+    const largeTh = max * 0.6;
+    const medTh = max * 0.25;
+
+    // reappend in sorted order and add size classes
+    areas.forEach(({img, area})=>{
+      img.classList.remove('large','medium','small');
+      if(area >= largeTh) img.classList.add('large');
+      else if(area >= medTh) img.classList.add('medium');
+      else img.classList.add('small');
+      gallery.appendChild(img);
+    });
+  }).catch(err=>{
+    console.warn('adjustGalleryOrder error', err);
+  });
+}
+
+document.getElementById('lightbox').onclick=e=>{
+  if(e.target.tagName!=='IMG') e.currentTarget.style.display='none';
+};
+
+toggle.onclick=()=>{
+  menu.classList.toggle('open');
+  document.body.classList.toggle('menu-open');
+};
+
+// Inicial: mostrar a cover fechada; ao clicar no coração ela abre e chamamos virarPagina
+const cover = document.getElementById('cover');
+const heartBtn = document.getElementById('heartBtn');
+const heartFall = document.getElementById('heartFall');
+let heartInterval = null;
+
+function createHeart(){
+  const h = document.createElement('div');
+  h.className = 'hf';
+  // random horizontal position within 10%..90%
+  h.style.left = (10 + Math.random()*80) + '%';
+  const dur = 4 + Math.random()*3; // 4-7s
+  const delay = Math.random()*1.2;
+  // slightly larger hearts and gentler scaling
+  const scale = 0.8 + Math.random()*0.5; // 0.8 - 1.3
+  // set initial scale so animation interpolates from this state
+  h.style.transform = `scale(${scale})`;
+  // slightly bigger font-size (hearts)
+  h.style.fontSize = `${14 + Math.random()*8}px`;
+  // horizontal drift amount (px) stored in CSS var --drift; smaller amplitude for smoother motion
+  const drift = (Math.random()*24 - 12).toFixed(0) + 'px'; // +-12px
+  h.style.setProperty('--x', h.style.left);
+  h.style.setProperty('--drift', drift);
+  // longer drift duration for a softer oscillation
+  const driftDur = (2.6 + Math.random()*2).toFixed(2) + 's';
+  h.style.animation = `hfFall ${dur}s linear ${delay}s forwards, hfDrift ${driftDur} ease-in-out ${delay}s infinite alternate`;
+  h.style.opacity = '0.95';
+  heartFall.appendChild(h);
+  // remove after animation
+  setTimeout(()=>{ h.remove(); }, (dur+delay)*1000 + 500);
+}
+
+function startHearts(){
+  if(heartInterval) return;
+  // create an initial burst
+  for(let i=0;i<6;i++) setTimeout(createHeart, i*150);
+  heartInterval = setInterval(createHeart, 600);
+}
+
+function stopHearts(){
+  if(heartInterval){ clearInterval(heartInterval); heartInterval = null; }
+  // remove any existing hearts
+  document.querySelectorAll('.heart-fall .hf').forEach(n=>n.remove());
+}
+
+// enhanced sakura petals (background) -- create after cover is opened
+let petalInterval = null;
+function createPetal(){
+  const p = document.createElement('div');
+  p.className = 'petal';
+  const left = (Math.random()*100) + '%';
+  p.style.left = left;
+  const dur = 6 + Math.random()*4; // slower fall
+  const delay = Math.random()*1.2;
+  const scale = 0.9 + Math.random()*0.6;
+  p.style.setProperty('--s', scale.toFixed(2));
+  p.style.setProperty('--x', left);
+  const drift = (Math.random()*40 - 20).toFixed(0) + 'px';
+  p.style.setProperty('--drift', drift);
+  const driftDur = (3 + Math.random()*3).toFixed(2) + 's';
+  p.style.fontSize = (12 + Math.random()*10) + 'px';
+  p.style.animation = `petalFall ${dur}s linear ${delay}s forwards, petalDrift ${driftDur} ease-in-out ${delay}s infinite alternate`;
+  document.getElementById('sakura').appendChild(p);
+  setTimeout(()=>{ p.remove(); }, (dur+delay)*1000 + 500);
+}
+
+function startPetals(){
+  if(petalInterval) return;
+  for(let i=0;i<8;i++) setTimeout(createPetal, i*120);
+  petalInterval = setInterval(createPetal, 450);
+}
+
+function stopPetals(){
+  if(petalInterval){ clearInterval(petalInterval); petalInterval = null; }
+  document.querySelectorAll('#sakura .petal').forEach(n=>n.remove());
+}
+
+// start hearts while cover visible
+startHearts();
+heartBtn.addEventListener('click', ()=>{
+  // stop hearts and open cover
+  stopHearts();
+  // start enhanced petals in background
+  startPetals();
+  cover.classList.add('opened');
+  heartBtn.disabled = true;
+  cover.addEventListener('transitionend', ()=>{
+    cover.style.display = 'none';
+    virarPagina(abas[0].html);
+  }, {once:true});
+});
+// teclado no botão do coração
+heartBtn.addEventListener('keydown', (e)=>{ if(e.key === 'Enter' || e.key === ' ') { e.preventDefault(); heartBtn.click(); } });
+
+/* ===== PAGE-TURN SOUND (WebAudio synthesized) ===== */
+let __audioCtx = null;
+function ensureAudioCtx(){
+  if(__audioCtx) return __audioCtx;
+  try{
+    const C = window.AudioContext || window.webkitAudioContext;
+    __audioCtx = new C();
+  }catch(e){
+    console.warn('WebAudio not available', e);
+    __audioCtx = null;
+  }
+  return __audioCtx;
+}
+
+function playTurnSound(){
+  const ctx = ensureAudioCtx();
+  if(!ctx) return;
+
+  const startNodes = ()=>{
+    const now = ctx.currentTime;
+    // longer buffer for a more natural rustle
+    const dur = 0.26; // seconds
+    const bufferSize = Math.floor(ctx.sampleRate * dur);
+    const buffer = ctx.createBuffer(1, bufferSize, ctx.sampleRate);
+    const data = buffer.getChannelData(0);
+    // shape noise: denser at start, decays smoothly
+    for(let i=0;i<bufferSize;i++){
+      const t = i/bufferSize;
+      // gentle envelope and a low-frequency wobble for body
+      const env = Math.pow(1 - t, 1.8);
+      const lf = 0.85 + 0.15*Math.sin(2*Math.PI*40*t);
+      data[i] = (Math.random()*2 - 1) * 0.9 * env * lf;
+    }
+
+    // Layer 1: warm rustle (lowpass)
+    const src1 = ctx.createBufferSource(); src1.buffer = buffer;
+    const lp = ctx.createBiquadFilter(); lp.type = 'lowpass'; lp.frequency.value = 1400;
+    const gain1 = ctx.createGain(); gain1.gain.value = 0;
+    src1.connect(lp); lp.connect(gain1); gain1.connect(ctx.destination);
+    src1.start(now);
+    gain1.gain.setValueAtTime(0, now);
+    gain1.gain.linearRampToValueAtTime(0.22, now + 0.01);
+    gain1.gain.exponentialRampToValueAtTime(0.0001, now + dur + 0.05);
+
+    // Layer 2: crisp edge (bandpass) for the paper edge sound
+    const src2 = ctx.createBufferSource(); src2.buffer = buffer;
+    const bp = ctx.createBiquadFilter(); bp.type = 'bandpass'; bp.frequency.value = 2200; bp.Q.value = 1.2;
+    const gain2 = ctx.createGain(); gain2.gain.value = 0;
+    src2.connect(bp); bp.connect(gain2); gain2.connect(ctx.destination);
+    src2.start(now);
+    gain2.gain.setValueAtTime(0, now);
+    gain2.gain.linearRampToValueAtTime(0.08, now + 0.004);
+    gain2.gain.exponentialRampToValueAtTime(0.0001, now + dur*0.6);
+
+    // Subtle oscillator shimmer (short) to give a tactile crispness
+    const osc = ctx.createOscillator(); osc.type = 'triangle'; osc.frequency.value = 900;
+    const oscGain = ctx.createGain(); oscGain.gain.value = 0;
+    osc.connect(oscGain); oscGain.connect(ctx.destination);
+    osc.start(now);
+    oscGain.gain.setValueAtTime(0, now);
+    oscGain.gain.linearRampToValueAtTime(0.055, now + 0.003);
+    oscGain.gain.exponentialRampToValueAtTime(0.0001, now + 0.12);
+    osc.stop(now + 0.14);
+
+    // stop buffer sources slightly after the buffer duration
+    src1.stop(now + dur + 0.06);
+    src2.stop(now + dur + 0.04);
+  };
+
+  if(ctx.state === 'suspended'){
+    ctx.resume().then(startNodes).catch(startNodes);
+  } else startNodes();
+}
+
+/* ===== GERAR SAKURA ===== */
+for(let i=0;i<18;i++){
+  const p=document.createElement('div');
+  p.className='sakura';
+  p.style.left=Math.random()*100+'vw';
+  p.style.animationDuration=8+Math.random()*6+'s';
+  sakura.appendChild(p);
+}
+</script>
+</body>
+</html>
