@@ -378,6 +378,59 @@ body.menu-open .sakura-container{
 @media(max-width:768px){
   .page{padding:40px 26px}
 }
+
+  /* ===== AJUSTE DE CONTRASTE E LEGIBILIDADE ===== */
+
+/* Texto base */
+.page,
+.page p,
+.page span,
+.page div {
+  color: #1a1a1a;
+}
+
+/* Títulos */
+.page h1,
+.page h2 {
+  color: var(--vermelho);
+}
+
+/* Fundo da página (menos claro) */
+.page {
+  background: linear-gradient(180deg, #fbf7f2, #f0e6dc);
+}
+
+/* Cards de pedidos */
+.pedido-card {
+  background: rgba(255, 255, 255, 0.92);
+}
+
+/* Texto dentro dos pedidos */
+.pedido-brand {
+  color: var(--vermelho);
+}
+
+/* Linha inferior dos pedidos */
+.pedido-bottom {
+  background: rgba(0, 0, 0, 0.25);
+}
+
+/* Menu radial (botões) */
+.menu-items button {
+  background: #ffffff;
+  color: #111;
+}
+
+/* Audio status */
+#audioStatus {
+  color: #222;
+}
+
+/* Cursor da escrita */
+.typecursor {
+  border-right: .1em solid rgba(0,0,0,0.4);
+}
+
 </style>
 </head>
 <body>
@@ -986,3 +1039,4 @@ for(let i=0;i<18;i++){
 </script>
 </body>
 </html>
+
