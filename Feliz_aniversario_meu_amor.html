@@ -14,11 +14,26 @@
 }
 *{margin:0;padding:0;box-sizing:border-box}
 
+html,body{ height:100%; }
 body{
   font-family:'Playfair Display',serif;
   min-height:100vh;
-  background:url('https://images7.alphacoders.com/848/thumb-1920-848317.jpg') center/cover fixed no-repeat;
+  /* Evita o problema em mobile onde background-attachment:fixed revela barras pretas ao fazer pull/overscroll */
+  background-image: url('https://images7.alphacoders.com/848/thumb-1920-848317.jpg');
+  background-position: center;
+  background-size: cover;
+  background-repeat: no-repeat;
+  background-attachment: scroll; /* importante para mobile */
+  /* cor de fundo de fallback para quando a imagem não cobrir a área durante overscroll */
+  background-color: #0f0f0f;
   overflow-x:hidden;
+  /* mover o scroll para o contêiner central para evitar overscroll do documento */
+  overflow-y: hidden;
+  /* cria espaçamento superior/inferior para que o conteúdo não fique grudado nas bordas */
+  padding: 28px 0;
+  /* tenta conter o overscroll para evitar mostrar áreas indesejadas */
+  overscroll-behavior-y: contain;
+  -webkit-overflow-scrolling: touch;
 }
 
 /* ===== SAKURA ===== */
@@ -166,8 +181,15 @@ body{
   position:relative;
   perspective:1600px;
   max-width:820px;
-  margin:12vh auto;
+  /* ocupar a altura disponível menos o padding do body e rolar internamente
+     isso previne o 'pull' do documento inteiro que pode revelar barras/espaços */
+  margin:0 auto;
+  height: calc(100vh - 56px);
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
   z-index:3;
+  display:flex;
+  align-items:flex-start; /* começar pelo topo quando o conteúdo for longo */
 }
 .page{
   background:linear-gradient(180deg,#fdfaf6,var(--papel));
@@ -292,12 +314,19 @@ body{
 /* PEDIDOS (card + WhatsApp) */
 .pedido-card{ display:flex; align-items:center; gap:14px; background: rgba(255,255,255,0.6); padding:12px; border-radius:12px; box-shadow:0 8px 30px rgba(0,0,0,0.08); max-width:640px }
 .pedido-card{ overflow:hidden }
-.img-square{ width:72px; height:72px; border-radius:10px; display:flex; align-items:center; justify-content:center; background: rgba(255,182,193,0.18); backdrop-filter: blur(6px); }
-.img-square img{ width:56px; height:56px; object-fit:contain; display:block }
+.img-square{ border-radius:10px; display:flex; align-items:center; justify-content:center; backdrop-filter: blur(6px); }
+/* imagem/logo normal: bloco retangular um pouco mais largo para evitar esmagamento */
+.img-square:not(.icon){ width:110px; height:72px; background: rgba(255,182,193,0.18); }
+.img-square:not(.icon) img{ display:block; width:100%; height:100%; object-fit:contain; padding:6px; box-sizing:border-box; background:#fff; border-radius:8px }
+/* when using an emoji/icon inside the square, prefer a smaller square with solid dark background */
+.img-square.icon{ width:72px; height:72px; background: #000; }
+.img-square.icon .icon-emoji{ color:#fff; font-size:32px; display:flex; align-items:center; justify-content:center; width:56px; height:56px; border-radius:8px }
 .pedido-info{ display:flex; flex-direction:row; gap:12px; align-items:center; width:100% }
 .pedido-brand{ font-weight:600; font-size:18px; color:var(--vermelho); flex:1; text-align:center; white-space:nowrap }
-.pedido-info > div:nth-child(2){ flex:1; display:flex; justify-content:center }
-.wa-btn{ display:inline-block; padding:8px 12px; background: #25D366; color:white; border-radius:8px; text-decoration:none; font-weight:600; min-width:92px; text-align:center }
+/* tornar a coluna do botão com largura fixa para manter todos os botões alinhados
+  (marca ocupa o espaço restante) */
+.pedido-info > div:nth-child(2){ flex:0 0 120px; display:flex; justify-content:center; align-items:center }
+.wa-btn{ display:inline-block; padding:8px 12px; background: #25D366; color:white; border-radius:8px; text-decoration:none; font-weight:600; min-width:100px; text-align:center }
 .wa-btn.small{ padding:6px 10px; font-size:14px }
 .pedido-info a.wa-btn{ white-space:nowrap }
 .pedido-bottom{ margin-top:10px; height:2px; border-radius:2px; background: rgba(0,0,0,0.12); /* thin translucent border */
@@ -314,7 +343,13 @@ body{
 
 /* layout for multiple pedido cards: align in a row when enough space */
 .pedido-list{ display:flex; gap:12px; align-items:flex-start; justify-content:center; flex-wrap:wrap; margin-top:10px }
-.pedido-list .pedido-card{ flex: 1 1 260px; max-width:320px }
+/* Forçar largura fixa dos cartões para que a coluna do botão fique alinhada entre eles */
+.pedido-list .pedido-card{ flex: 0 0 320px; width:320px; box-sizing:border-box }
+
+/* Em telas pequenas, volte ao comportamento fluido para caber na viewport */
+@media(max-width:740px){
+  .pedido-list .pedido-card{ flex: 1 1 100%; width:100%; max-width:none }
+}
 
 
 /* ===== LIGHTBOX ===== */
@@ -672,8 +707,8 @@ Eu escolho você. Sempre. ❤
  {icon:'🍃',html:`<h1>Pedidos</h1>
 <div class="pedido-list">
   <div class="pedido-card">
-    <div class="img-square">
-      <img src="https://www.trecebits.com/wp-content/uploads/2023/03/Crunchyroll-1.webp" alt="Crunchyroll">
+    <div class="img-square icon" aria-hidden="true">
+      <span class="icon-emoji" aria-hidden="true">📺</span>
     </div>
     <div class="pedido-info">
       <div class="pedido-brand">Crunchyroll</div>
@@ -686,8 +721,8 @@ Eu escolho você. Sempre. ❤
 
   <!-- segundo cartão: Jogos -->
   <div class="pedido-card">
-    <div class="img-square" aria-hidden="true">
-      <span style="font-size:32px">🎮</span>
+    <div class="img-square icon" aria-hidden="true">
+      <span class="icon-emoji" aria-hidden="true">🎮</span>
     </div>
     <div class="pedido-info">
       <div class="pedido-brand">Jogos</div>
@@ -699,8 +734,8 @@ Eu escolho você. Sempre. ❤
   </div>
 
   <div class="pedido-card">
-    <div class="img-square" aria-hidden="true">
-      <span style="font-size:28px">💬</span>
+    <div class="img-square icon" aria-hidden="true">
+      <span class="icon-emoji" aria-hidden="true">💬</span>
     </div>
     <div class="pedido-info">
       <div class="pedido-brand">Um Pedido</div>
@@ -1039,4 +1074,3 @@ for(let i=0;i<18;i++){
 </script>
 </body>
 </html>
-
